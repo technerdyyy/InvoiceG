@@ -1,0 +1,14 @@
+const initialInvoiceState = {
+    invoiceNumber: '2001321',
+    date: new Date().toLocaleDateString(),
+    clientDetails: '',
+    referenceNumber: '',
+    contactInfo: '',
+    serviceDescription: '',
+    terms: '',
+    items: [
+      { id: 1, description: '', quantity: 1, unitPrice: 0, amount: 0 }
+    ]
+};
+  
+export default initialInvoiceState
