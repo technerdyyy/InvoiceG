@@ -12,9 +12,9 @@ const SignupForm = () => {
   });
   const { signup } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = signup(formData);
+    const result = await signup(formData);
     if (!result.success) {
       alert(result.error);
     }

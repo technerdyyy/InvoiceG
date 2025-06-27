@@ -7,13 +7,13 @@ const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const { login } = useAuth();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const result = login(formData.email, formData.password);
-    if (!result.success) {
-      alert(result.error + ". Try demo@restaurant.com / demo123");
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const result = await login(formData.email, formData.password);
+  if (!result.success) {
+    alert(result.error);
+  }
+};
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

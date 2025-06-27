@@ -1,6 +1,6 @@
 import React from "react";
 
-const ItemSuggestions = ({ suggestions, onSelect, show }) => {
+const ItemSuggestions = ({ suggestions, onSelect, show, highlightedIndex }) => {
   if (!show || suggestions.length === 0) return null;
 
   return (
@@ -9,7 +9,11 @@ const ItemSuggestions = ({ suggestions, onSelect, show }) => {
         <button
           key={idx}
           onClick={() => onSelect(suggestion)}
-          className="w-full text-left px-3 py-2 hover:bg-gray-100 text-sm"
+          className={`w-full text-left px-3 py-2 text-sm ${
+            idx === highlightedIndex
+              ? "bg-blue-100 font-medium text-blue-800"
+              : "hover:bg-gray-100"
+          }`}
         >
           {suggestion}
         </button>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import mockFoodItems from "../../data/mockFoodItems";
+import React, { useState, useRef } from "react";
+import axios from "axios";
 import Input from "../ui/Input";
 import ItemSuggestions from "./ItemSuggestions";
 import Button from "../ui/Button";
@@ -8,25 +8,64 @@ import { Trash2 } from "lucide-react";
 const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
+  const inputRef = useRef(null);
 
-  const handleDescriptionChange = (value) => {
+  const handleDescriptionChange = async (value) => {
     onUpdate(item.id, "description", value);
-    if (value.length > 0) {
-      const filtered = mockFoodItems.filter((foodItem) =>
-        foodItem.toLowerCase().includes(value.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(true);
+    setHighlightedIndex(-1);
+
+    if (value.trim().length > 0) {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/suggestions?q=${value}&userId=${item.userId}`
+        );
+
+        const suggestionNames = data.map((s) => s.name);
+        setSuggestions(suggestionNames);
+        setShowSuggestions(true);
+      } catch (err) {
+        console.error("Error fetching suggestions:", err);
+        setSuggestions([]);
+      }
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
   };
 
-  const handleSuggestionSelect = (suggestion) => {
+  const handleSuggestionSelect = async (suggestion) => {
     onUpdate(item.id, "description", suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
+    setHighlightedIndex(-1);
+
+    try {
+      await axios.post("http://localhost:5000/api/suggestions", {
+        name: suggestion,
+        userId: item.userId,
+      });
+    } catch (err) {
+      console.error("Failed to save suggestion:", err);
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || suggestions.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlightedIndex((prev) => (prev + 1) % suggestions.length);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlightedIndex((prev) =>
+        prev <= 0 ? suggestions.length - 1 : prev - 1
+      );
+    } else if (e.key === "Enter") {
+      if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
+        handleSuggestionSelect(suggestions[highlightedIndex]);
+      }
+    }
   };
 
   return (
@@ -34,16 +73,24 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
       <div className="md:col-span-2 relative">
         <Input
           label="Description"
+          ref={inputRef}
           value={item.description}
           onChange={(e) => handleDescriptionChange(e.target.value)}
-          placeholder="Start typing food item..."
+          onKeyDown={handleKeyDown}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          onFocus={() => {
+            if (suggestions.length > 0) setShowSuggestions(true);
+          }}
+          placeholder="Start typing item name..."
         />
         <ItemSuggestions
           suggestions={suggestions}
           onSelect={handleSuggestionSelect}
           show={showSuggestions && item.description}
+          highlightedIndex={highlightedIndex}
         />
       </div>
+
       <Input
         label="Quantity"
         type="number"
