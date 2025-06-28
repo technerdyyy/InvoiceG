@@ -3,7 +3,7 @@ import axios from "axios";
 import Input from "../ui/Input";
 import ItemSuggestions from "./ItemSuggestions";
 import Button from "../ui/Button";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
 const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -11,45 +11,50 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef(null);
 
-  const handleDescriptionChange = async (value) => {
-    onUpdate(item.id, "description", value);
-    setHighlightedIndex(-1);
+ const handleDescriptionChange = async (value) => {
+  onUpdate(item.id, "description", value);
+  setHighlightedIndex(-1);
 
-    if (value.trim().length > 0) {
-      try {
-        const { data } = await axios.get(
-          `http://localhost:5000/api/suggestions?q=${value}&userId=${item.userId}`
-        );
+  const userIdToUse = item.userId || null;
 
-        const suggestionNames = data.map((s) => s.name);
-        setSuggestions(suggestionNames);
-        setShowSuggestions(true);
-      } catch (err) {
-        console.error("Error fetching suggestions:", err);
-        setSuggestions([]);
-      }
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+  if (value.trim().length > 0) {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
+      );
+
+      console.log("Fetched suggestions:", data);
+      const suggestionNames = data.map((s) => s.name);
+      setSuggestions(suggestionNames);
+      setShowSuggestions(true);
+
+      // ❌ NO saving here!
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
     }
-  };
-
-  const handleSuggestionSelect = async (suggestion) => {
-    onUpdate(item.id, "description", suggestion);
+  } else {
     setSuggestions([]);
     setShowSuggestions(false);
-    setHighlightedIndex(-1);
+  }
+};
 
-    try {
-      await axios.post("http://localhost:5000/api/suggestions", {
-        name: suggestion,
-        userId: item.userId,
-      });
-    } catch (err) {
-      console.error("Failed to save suggestion:", err);
-    }
-  };
 
+ const handleSuggestionSelect = async (suggestion) => {
+  onUpdate(item.id, "description", suggestion);
+  setSuggestions([]);
+  setShowSuggestions(false);
+  setHighlightedIndex(-1);
+
+  try {
+    // Only save selected full suggestion (no partials)
+    await axios.post("http://localhost:5000/api/suggestions", {
+      name: suggestion,
+      userId: item.userId || null,
+    });
+  } catch (err) {
+    console.error("Failed to save suggestion:", err);
+  }
+};
   const handleKeyDown = (e) => {
     if (!showSuggestions || suggestions.length === 0) return;
 

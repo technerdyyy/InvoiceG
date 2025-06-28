@@ -16,22 +16,24 @@ const AuthProvider = ({ children }) => {
   }, []);
 
   const fetchUser = async (token) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setCurrentUser(data.user);
-      } else {
-        logout();
-      }
-    } catch (err) {
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    console.log("🔐 fetched user:", data); // ← add this line
+
+    if (res.ok) {
+      setCurrentUser(data.user); // this user will go into context
+    } else {
       logout();
     }
-  };
+  } catch (err) {
+    logout();
+  }
+};
 
   const login = async (email, password) => {
     try {
