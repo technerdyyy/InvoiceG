@@ -12,9 +12,9 @@ const ItemList = ({
   onRemoveItem,
   onFirstVisit,
 }) => {
-  const { user } = useAuth(); // ✅ Authenticated user (optional)
-  const userId = user?._id || null;
-  console.log("Logged in user:", user);
+  const { currentUser } = useAuth();
+  const userId = currentUser?._id || null;
+  console.log("Logged in user:", currentUser);
   const hasNotifiedRef = useRef(false);
 
   useEffect(() => {

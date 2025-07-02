@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import initialInvoiceState from "../data";
 import Button from "./ui/Button";
@@ -24,6 +24,19 @@ const Dashboard = () => {
   const [showGuestPopup, setShowGuestPopup] = useState(false);
   const [itemAddedOnce, setItemAddedOnce] = useState(false);
 
+  // ✅ 3. Update items with userId if missing
+
+  useEffect(() => {
+    if (currentUser) {
+      setInvoice((prev) => ({
+        ...prev,
+        items: prev.items.map((item) =>
+          item.userId ? item : { ...item, userId: currentUser._id }
+        ),
+      }));
+    }
+  }, [currentUser]);
+
   // Toggle edit mode for BusinessDetails
   const handleToggleEditBusinessInfo = () => {
     setIsEditingBusinessInfo((prev) => !prev);
@@ -41,7 +54,8 @@ const Dashboard = () => {
       quantity: 1,
       unitPrice: 0,
       amount: 0,
-      userId: currentUser?.id || null,
+      userId: currentUser._id || null, // ✅ Inject current user ID
+      // userId: currentUser?._id || null,
     };
 
     setInvoice((prev) => ({

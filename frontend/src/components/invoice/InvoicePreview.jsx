@@ -81,7 +81,7 @@ const InvoicePreview = ({ invoice, showBusinessHeader }) => {
             >
               <div>{item.description || "Product/Service"}</div>
               <div>{item.quantity}</div>
-              <div>₹{item.unitPrice}</div>
+              <div>₹{item.unitPrice.toFixed(2)}</div>
               <div>₹{item.amount.toFixed(2)}</div>
             </div>
           ))}
