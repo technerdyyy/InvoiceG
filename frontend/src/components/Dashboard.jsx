@@ -62,12 +62,31 @@ const Dashboard = () => {
       amount: 0,
       userId: currentUser ? currentUser._id : "guest",
     };
+  // ✅ Only show guest popup when first item is added
+  const addItem = () => {
+    const newItem = {
+      id: Date.now(),
+      description: "",
+      quantity: 1,
+      unitPrice: 0,
+      amount: 0,
+      userId: currentUser ? currentUser._id : "guest", // ✅ FIXED: safe check
+    };
 
     setInvoice((prev) => ({
       ...prev,
       items: [...prev.items, newItem],
     }));
+    setInvoice((prev) => ({
+      ...prev,
+      items: [...prev.items, newItem],
+    }));
 
+    if (!itemAddedOnce && !isAuthenticated) {
+      setItemAddedOnce(true);
+      setShowGuestPopup(true);
+    }
+  };
     if (!itemAddedOnce && !isAuthenticated) {
       setItemAddedOnce(true);
       setShowGuestPopup(true);
@@ -234,14 +253,14 @@ const Dashboard = () => {
             } lg:sticky lg:top-8`}
           >
             <div className="lg:h-screen lg:overflow-hidden">
-              <InvoicePreview
+              {/* <InvoicePreview
                 invoice={invoice}
                 showBusinessHeader={showBusinessHeader}
                 currentUser={currentUser}
                 summary={summary}
-              />
+              /> */}
               <div ref={previewRef}
-              className="pdf-safe"
+              className="pdf-safe"  
                 style={{ color: "#000", backgroundColor: "#fff" }}
               > {/* ✅ Captures this area */}
                 <InvoicePreview

@@ -24,9 +24,9 @@ const Header = () => {
   //   if (!isAuthenticated) navigate("/auth");
   // }, [isAuthenticated, navigate]);
 
-  useEffect(() => {
-    document.documentElement.setAttribute("data-currency", currency);
-  }, [currency]);
+  // useEffect(() => {
+  //   document.documentElement.setAttribute("data-currency", currency);
+  // }, [currency]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
