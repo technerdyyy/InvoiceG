@@ -11,7 +11,7 @@ const BusinessDetails = ({
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold">Bill From</h3>
+        <h3 className="text-xl font-bold">Bill From</h3>
         <Button onClick={onToggleEdit} variant="orange">
           {isEditing ? "Save" : "Edit"}
         </Button>

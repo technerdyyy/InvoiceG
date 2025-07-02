@@ -27,7 +27,7 @@ const AuthPage = () => {
               alt="InvoiceG logo"
               className="w-10 h-10 object-contain"
             />
-            <h1 className="text-3xl font-bold text-gray-800">InvoiceG</h1>
+            <h1 className="text-3xl font-bold text-gray-800">InvoiceKart</h1>
           </div>
           <p className="text-gray-600">For Restaurant & Food Business</p>
         </div>

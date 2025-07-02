@@ -9,7 +9,7 @@ import InvoiceActions from "./invoice/InvoiceActions";
 import InvoicePreview from "./invoice/InvoicePreview";
 import Header from "./layout/Header";
 import BusinessDetails from "./invoice/BusinessDetails";
-import InvoiceSummary from "./invoice/InvoiceSummary"
+import InvoiceSummary from "./invoice/InvoiceSummary";
 import Popup from "./ui/Popup"; // 👈 Make sure this file exists and is styled properly
 import { Eye, EyeOff, Save, Download } from "lucide-react";
 
@@ -127,38 +127,44 @@ const Dashboard = () => {
       [field]: value,
     }));
   };
-  
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 hidden sm:block">
-            Create Invoice
-          </h2>
-
-          <div className="flex flex-wrap justify-center sm:justify-end items-center space-x-2 mt-4 sm:mt-0">
-            <div className="flex space-x-2">
-              <Button variant="primary" onClick={handleSave}>
-                <Save size={16} />
-              </Button>
-              <Button variant="success" onClick={handleDownloadPDF}>
-                <Download size={16} />
-              </Button>
-            </div>
-
+        {/* Controls */}
+        <div className="flex flex-row justify-between items-center mb-6 gap-2">
+          {/* Left side: Title and Hide Business Header button */}
+          <div className="flex items-center space-x-2">
+            <h2 className="text-2xl font-bold text-gray-800 hidden sm:block">
+              Create Invoice
+            </h2>
             <Button
               variant="secondary"
               onClick={() => setShowBusinessHeader(!showBusinessHeader)}
+              className="flex items-center justify-center"
             >
               {showBusinessHeader ? <EyeOff size={16} /> : <Eye size={16} />}
               <span className="ml-2 hidden md:inline">
                 {showBusinessHeader ? "Hide" : "Show"} Business Header
               </span>
             </Button>
+          </div>
 
+          {/* Right side: Action buttons in same row */}
+          <div className="flex items-center gap-2">
+            {/* Save Button */}
+            <Button variant="primary" onClick={handleSave}>
+              <Save size={16} />
+            </Button>
+
+            {/* Download Button */}
+            <Button variant="success">
+              <Download size={16} />
+            </Button>
+
+            {/* Preview Button (mobile only) */}
             <Button
               variant="primary"
               onClick={() => setShowPreview(!showPreview)}
@@ -173,9 +179,13 @@ const Dashboard = () => {
         </div>
 
         <div className="lg:grid lg:grid-cols-2 lg:gap-8">
-          <div className={`space-y-6 ${showPreview ? "hidden lg:block" : ""}`}>
-            <InvoiceHeader invoice={invoice} onUpdate={handleInvoiceUpdate} />
-
+          {/* Form Section */}
+          <div
+            className={`space-y-5 space-x-5 ${
+              showPreview ? "hidden lg:block" : ""
+            }`}
+          >
+            {/* Business Info Toggle */}
             {showBusinessHeader && (
               <BusinessDetails
                 businessInfo={invoice.businessInfo}
@@ -192,6 +202,7 @@ const Dashboard = () => {
                 onToggleEdit={handleToggleEditBusinessInfo}
               />
             )}
+            <InvoiceHeader invoice={invoice} onUpdate={handleInvoiceUpdate} />
 
             <ClientDetails invoice={invoice} onUpdate={handleInvoiceUpdate} />
 
@@ -202,11 +213,13 @@ const Dashboard = () => {
               onRemoveItem={removeItem}
             />
 
-            <InvoiceSummary items={invoice.items}
-  summary={summary}
-  onUpdate={(field, value) =>
-    setSummary((prev) => ({ ...prev, [field]: value }))
-  }/>
+            <InvoiceSummary
+              items={invoice.items}
+              summary={summary}
+              onUpdate={(field, value) =>
+                setSummary((prev) => ({ ...prev, [field]: value }))
+              }
+            />
 
             <InvoiceActions
               invoice={invoice}
