@@ -113,7 +113,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
       <div className="col-span-6 md:col-span-2">
         <Input
           label="Unit Price (₹)"
-          type="number"
+          type="integer"
           value={item.unitPrice}
           onChange={(e) =>
             onUpdate(item.id, "unitPrice", parseFloat(e.target.value) || 0)

@@ -53,7 +53,7 @@ const Header = () => {
 
           <div className="flex items-center gap-4">
             {/* 💱 Currency Selector */}
-            <select
+            {/* <select
               value={currency}
               onChange={(e) => setCurrency(e.target.value)}
               className="border text-sm rounded px-2 py-1"
@@ -63,7 +63,7 @@ const Header = () => {
                   {opt.label}
                 </option>
               ))}
-            </select>
+            </select> */}
 
             {/* 👤 Authenticated User Dropdown OR Login Button */}
             {isAuthenticated ? (
