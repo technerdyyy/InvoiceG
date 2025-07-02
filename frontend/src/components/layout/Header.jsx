@@ -2,31 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import { LogOut, User, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import logo from "../../assets/invoice-logo.png";
 
 const Header = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currency, setCurrency] = useState("INR");
   const dropdownRef = useRef(null);
-
-  const currencyOptions = [
-    { label: "₹ INR", value: "INR" },
-    { label: "$ USD", value: "USD" },
-    { label: "€ EUR", value: "EUR" },
-    { label: "£ GBP", value: "GBP" },
-    { label: "¥ JPY", value: "JPY" },
-  ];
-
-  // useEffect(() => {
-  //   // redirect if not authenticated
-  //   if (!isAuthenticated) navigate("/auth");
-  // }, [isAuthenticated, navigate]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-currency", currency);
-  }, [currency]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -43,7 +26,11 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <h1 className="text-xl font-bold text-gray-900">InvoiceG</h1>
+            <img
+              src={logo}
+              alt="InvoiceG logo"
+              className="w-10 h-10 object-contain"
+            /> <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
             {isAuthenticated && (
               <span className="text-sm text-gray-500">
                 ({currentUser?.businessName})
@@ -52,18 +39,7 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* 💱 Currency Selector */}
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="border text-sm rounded px-2 py-1"
-            >
-              {currencyOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+           
 
             {/* 👤 Authenticated User Dropdown OR Login Button */}
             {isAuthenticated ? (

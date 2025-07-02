@@ -79,7 +79,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 rounded-lg items-end">
       <div className="col-span-12 md:col-span-4 relative">
         <Input
-          label="Description"
+          label="Name"
           ref={inputRef}
           value={item.description}
           onChange={(e) => handleDescriptionChange(e.target.value)}
@@ -112,7 +112,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
 
       <div className="col-span-6 md:col-span-2">
         <Input
-          label="Unit Price (₹)"
+          label="Unit Price"
           type="integer"
           value={item.unitPrice}
           onChange={(e) =>
@@ -124,7 +124,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
       </div>
 
       <div className="col-span-6 md:col-span-2">
-        <Input label="Amount (₹)" value={item.amount.toFixed(2)} readOnly />
+        <Input label="Amt (₹)" value={item.amount.toFixed(2)} readOnly />
       </div>
 
       <div className="col-span-6 md:col-span-2 flex justify-end items-end">
