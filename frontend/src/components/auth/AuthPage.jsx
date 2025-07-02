@@ -1,10 +1,21 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LoginForm from "./loginForm";
 import SignupForm from "./SignupForm";
 import logo from "../../assets/invoice-logo.png";
+import { useNavigate } from "react-router-dom";
+import useAuth from "../../hooks/useAuth"; // <-- Make sure you import this
 
 const AuthPage = () => {
   const [showLogin, setShowLogin] = useState(true);
+  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  // ✅ Redirect on successful login/signup
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/");
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4">
@@ -49,4 +60,5 @@ const AuthPage = () => {
     </div>
   );
 };
+
 export default AuthPage;

@@ -1,117 +1,39 @@
-import React, { useState } from "react";
-import Button from "../ui/Button";
+import React from "react";
 
-const InvoicePreview = ({ invoice, showBusinessHeader, currentUser }) => {
+const InvoicePreview = ({ invoice, showBusinessHeader }) => {
   const calculateTotal = () => {
     return invoice.items.reduce((total, item) => total + item.amount, 0);
   };
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [businessInfo, setBusinessInfo] = useState({
-    businessName: currentUser?.businessName || "",
-    registrationNumber: "",
-    address: "",
-    city: "",
-    representative: "",
-    department: "",
-  });
-
-  const handleChange = (e) => {
-    setBusinessInfo({ ...businessInfo, [e.target.name]: e.target.value });
-  };
+  const businessInfo = invoice.businessInfo || {};
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg h-full overflow-auto">
+      <h1 className="text-2xl text-center font-bold pb-3">Preview</h1>
       <div className="border-2 border-gray-200 rounded-lg p-6">
-        {showBusinessHeader && (
+        {showBusinessHeader && businessInfo.businessName && (
           <div className="flex justify-between items-start mb-6 pb-4 border-b-2 border-gray-800">
             <div className="flex items-start space-x-4 w-full">
-              <div className="w-20 h-16 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+              {/* <div className="w-20 h-16 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
                 Your Logo
+              </div> */}
+              <div className="flex-1 text-sm text-blue-600 space-y-1">
+                <h2 className="font-bold text-lg">
+                  {businessInfo.businessName || "[Business Name]"}
+                </h2>
+                <p>
+                  {businessInfo.registrationNumber || "[Registration Number]"}
+                </p>
+                <p>{businessInfo.address || "[Business Address]"}</p>
+                <p>{businessInfo.city || "[City, Region]"}</p>
+                <p>Representative: {businessInfo.representative || "[Name]"}</p>
+                <p>Department: {businessInfo.department || "[Unit]"}</p>
               </div>
-              <div className="flex-1">
-                {isEditing ? (
-                  <div className="space-y-1">
-                    <input
-                      type="text"
-                      name="businessName"
-                      value={businessInfo.businessName}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="Business Name"
-                    />
-                    <input
-                      type="text"
-                      name="registrationNumber"
-                      value={businessInfo.registrationNumber}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="Registration Number"
-                    />
-                    <input
-                      type="text"
-                      name="address"
-                      value={businessInfo.address}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="Business Address"
-                    />
-                    <input
-                      type="text"
-                      name="city"
-                      value={businessInfo.city}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="City, Region"
-                    />
-                    <input
-                      type="text"
-                      name="representative"
-                      value={businessInfo.representative}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="Representative"
-                    />
-                    <input
-                      type="text"
-                      name="department"
-                      value={businessInfo.department}
-                      onChange={handleChange}
-                      className="border w-full px-2 py-1 rounded text-sm"
-                      placeholder="Department"
-                    />
-                  </div>
-                ) : (
-                  <div className="text-sm text-blue-600 space-y-1">
-                    <h2 className="font-bold text-lg">
-                      {businessInfo.businessName || "[Business Name]"}
-                    </h2>
-                    <p>
-                      {businessInfo.registrationNumber ||
-                        "[Registration Number]"}
-                    </p>
-                    <p>{businessInfo.address || "[Business Address]"}</p>
-                    <p>{businessInfo.city || "[City, Region]"}</p>
-                    <p>
-                      Representative: {businessInfo.representative || "[Name]"}
-                    </p>
-                    <p>Department: {businessInfo.department || "[Unit]"}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-            <div className="text-right ml-4">
-              {/* <h1 className="text-2xl font-bold mb-2">Invoice</h1> */}
-              <Button
-                onClick={() => setIsEditing((prev) => !prev)}
-                variant="orange"
-              >
-                {isEditing ? "Save" : "Edit"}
-              </Button>
             </div>
           </div>
         )}
 
+        {/* Remaining invoice content */}
         <div className="flex justify-between mb-6">
           <div className="w-1/2">
             <h3 className="font-bold mb-2">Bill To</h3>

@@ -11,50 +11,49 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef(null);
 
- const handleDescriptionChange = async (value) => {
-  onUpdate(item.id, "description", value);
-  setHighlightedIndex(-1);
+  const handleDescriptionChange = async (value) => {
+    onUpdate(item.id, "description", value);
+    setHighlightedIndex(-1);
 
-  const userIdToUse = item.userId || null;
+    const userIdToUse = item.userId || null;
 
-  if (value.trim().length > 0) {
-    try {
-      const { data } = await axios.get(
-        `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
-      );
+    if (value.trim().length > 0) {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
+        );
 
-      console.log("Fetched suggestions:", data);
-      const suggestionNames = data.map((s) => s.name);
-      setSuggestions(suggestionNames);
-      setShowSuggestions(true);
+        console.log("Fetched suggestions:", data);
+        const suggestionNames = data.map((s) => s.name);
+        setSuggestions(suggestionNames);
+        setShowSuggestions(true);
 
-      // ❌ NO saving here!
-    } catch (err) {
-      console.error("Error fetching suggestions:", err);
+        // ❌ NO saving here!
+      } catch (err) {
+        console.error("Error fetching suggestions:", err);
+      }
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
     }
-  } else {
+  };
+
+  const handleSuggestionSelect = async (suggestion) => {
+    onUpdate(item.id, "description", suggestion);
     setSuggestions([]);
     setShowSuggestions(false);
-  }
-};
+    setHighlightedIndex(-1);
 
-
- const handleSuggestionSelect = async (suggestion) => {
-  onUpdate(item.id, "description", suggestion);
-  setSuggestions([]);
-  setShowSuggestions(false);
-  setHighlightedIndex(-1);
-
-  try {
-    // Only save selected full suggestion (no partials)
-    await axios.post("http://localhost:5000/api/suggestions", {
-      name: suggestion,
-      userId: item.userId || null,
-    });
-  } catch (err) {
-    console.error("Failed to save suggestion:", err);
-  }
-};
+    try {
+      // Only save selected full suggestion (no partials)
+      await axios.post("http://localhost:5000/api/suggestions", {
+        name: suggestion,
+        userId: item.userId || null,
+      });
+    } catch (err) {
+      console.error("Failed to save suggestion:", err);
+    }
+  };
   const handleKeyDown = (e) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
@@ -74,8 +73,9 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 p-4 bg-gray-50 rounded-lg">
-      <div className="md:col-span-2 relative">
+    <div className="grid grid-cols-12 gap-4 p-4 bg-gray-50 rounded-lg items-end">
+      {/* Description */}
+      <div className="col-span-12 md:col-span-4 relative">
         <Input
           label="Description"
           ref={inputRef}
@@ -86,7 +86,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
           onFocus={() => {
             if (suggestions.length > 0) setShowSuggestions(true);
           }}
-          placeholder="Start typing item name..."
+          placeholder="Item name"
         />
         <ItemSuggestions
           suggestions={suggestions}
@@ -96,38 +96,46 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
         />
       </div>
 
-      <Input
-        label="Quantity"
-        type="number"
-        value={item.quantity}
-        onChange={(e) =>
-          onUpdate(item.id, "quantity", parseInt(e.target.value) || 0)
-        }
-        min="1"
-      />
-      <Input
-        label="Unit Price (₹)"
-        type="number"
-        value={item.unitPrice}
-        onChange={(e) =>
-          onUpdate(item.id, "unitPrice", parseFloat(e.target.value) || 0)
-        }
-        min="0"
-        step="0.01"
-      />
-      <Input
-        label="Amount (₹)"
-        value={item.amount.toFixed(2)}
-        readOnly
-        className="bg-gray-100"
-      />
-      <div className="flex items-end">
+      {/* Quantity */}
+      <div className="col-span-6 md:col-span-2">
+        <Input
+          label="Quantity"
+          type="number"
+          value={item.quantity}
+          onChange={(e) =>
+            onUpdate(item.id, "quantity", parseInt(e.target.value) || 0)
+          }
+          min="1"
+        />
+      </div>
+
+      {/* Unit Price */}
+      <div className="col-span-6 md:col-span-2">
+        <Input
+          label="Unit Price (₹)"
+          type="integer"
+          value={item.unitPrice}
+          onChange={(e) =>
+            onUpdate(item.id, "unitPrice", parseFloat(e.target.value) || 0)
+          }
+          min="0"
+          step="0.01"
+        />
+      </div>
+
+      {/* Amount */}
+      <div className="col-span-6 md:col-span-2">
+        <Input label="Amount (₹)" value={item.amount.toFixed(2)} readOnly />
+      </div>
+
+      {/* Delete Button */}
+      <div className="col-span-6 md:col-span-2 flex justify-end items-end">
         <Button
           variant="danger"
           size="md"
           onClick={() => onRemove(item.id)}
           disabled={!canRemove}
-          className="p-3 cursor-pointer"
+          className="p-3"
         >
           <Trash2 size={16} />
         </Button>

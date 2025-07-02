@@ -7,13 +7,13 @@ const LoginForm = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const { login } = useAuth();
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const result = await login(formData.email, formData.password);
-  if (!result.success) {
-    alert(result.error);
-  }
-};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const result = await login(formData.email, formData.password);
+    if (!result.success) {
+      alert(result.error);
+    }
+  };
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -43,9 +43,9 @@ const handleSubmit = async (e) => {
       >
         Login
       </Button>
-      <div className="text-center text-sm text-gray-600 mt-4">
+      {/* <div className="text-center text-sm text-gray-600 mt-4">
         Demo: demo@restaurant.com / demo123
-      </div>
+      </div> */}
     </div>
   );
 };

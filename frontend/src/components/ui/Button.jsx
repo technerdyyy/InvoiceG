@@ -8,7 +8,7 @@ const Button = ({
   ...props
 }) => {
   const baseClasses =
-    "flex items-center justify-center font-medium rounded-lg transition-colors";
+    "flex items-center justify-center font-medium rounded-lg transition-colors cursor-pointer";
   const variants = {
     primary: "bg-blue-500 text-white hover:bg-blue-600",
     secondary: "bg-gray-300 text-gray-800 hover:bg-gray-200",

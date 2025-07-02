@@ -1,21 +1,26 @@
 import "./App.css";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import AuthProvider from "./context/AuthContext";
-import useAuth from "./hooks/useAuth";
-import Dashboard from "../src/components/Dashboard"; // adjust path as needed
-import AuthPage from "../src/components/auth/AuthPage"; // adjust path as needed
+import Dashboard from "./components/Dashboard";
+import AuthPage from "./components/auth/AuthPage";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Dashboard />,
+  },
+  {
+    path: "/auth",
+    element: <AuthPage />,
+  },
+]);
 
 function App() {
   return (
     <AuthProvider>
-      <AppRouter />
+      <RouterProvider router={router} />
     </AuthProvider>
   );
-}
-
-// 🔁 Move this inside the same file
-function AppRouter() {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated ? <Dashboard /> : <AuthPage />;
 }
 
 export default App;

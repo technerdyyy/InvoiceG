@@ -1,14 +1,28 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import axios from "axios";
 import Button from "../ui/Button";
 import InvoiceItem from "./InvoiceItem";
 import { Plus } from "lucide-react";
 import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
 
-const ItemList = ({ invoice, onUpdate, onAddItem, onRemoveItem }) => {
+const ItemList = ({
+  invoice,
+  onUpdate,
+  onAddItem,
+  onRemoveItem,
+  onFirstVisit,
+}) => {
   const { user } = useAuth(); // ✅ Authenticated user (optional)
   const userId = user?._id || null;
   console.log("Logged in user:", user);
+  const hasNotifiedRef = useRef(false);
+
+  useEffect(() => {
+    if (onFirstVisit && !hasNotifiedRef.current) {
+      onFirstVisit();
+      hasNotifiedRef.current = true;
+    }
+  }, [onFirstVisit]);
 
   const calculateTotal = () => {
     return invoice.items.reduce((total, item) => total + item.amount, 0);
@@ -64,7 +78,11 @@ const ItemList = ({ invoice, onUpdate, onAddItem, onRemoveItem }) => {
     <div className="bg-white p-6 rounded-lg shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">Items</h3>
-        <Button variant="success" onClick={handleAddItem} className="cursor-pointer">
+        <Button
+          variant="success"
+          onClick={handleAddItem}
+          className="cursor-pointer"
+        >
           <Plus size={16} className="mr-2" />
           Add Item
         </Button>
