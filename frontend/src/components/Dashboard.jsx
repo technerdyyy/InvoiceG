@@ -9,6 +9,7 @@ import InvoiceActions from "./invoice/InvoiceActions";
 import InvoicePreview from "./invoice/InvoicePreview";
 import Header from "./layout/Header";
 import BusinessDetails from "./invoice/BusinessDetails";
+import InvoiceSummary from "./invoice/InvoiceSummary"
 import Popup from "./ui/Popup"; // 👈 Make sure this file exists and is styled properly
 import { Eye, EyeOff, Save, Download } from "lucide-react";
 
@@ -23,6 +24,14 @@ const Dashboard = () => {
   // 👇 Popup & First Item State
   const [showGuestPopup, setShowGuestPopup] = useState(false);
   const [itemAddedOnce, setItemAddedOnce] = useState(false);
+
+  // Sumarry states
+  const [summary, setSummary] = useState({
+    discount: 0,
+    cgst: 0,
+    sgst: 0,
+  });
+  
 
   // ✅ 3. Update items with userId if missing
 
@@ -86,6 +95,15 @@ const Dashboard = () => {
     // 👇 Add your save logic here for authenticated users
     console.log("Saving invoice...", invoice);
   };
+
+// handling summary update
+  const handleSummaryUpdate = (field, value) => {
+    setSummary((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -164,6 +182,12 @@ const Dashboard = () => {
               onRemoveItem={removeItem}
             />
 
+            <InvoiceSummary items={invoice.items}
+  summary={summary}
+  onUpdate={(field, value) =>
+    setSummary((prev) => ({ ...prev, [field]: value }))
+  }/>
+
             <InvoiceActions
               invoice={invoice}
               onUpdate={handleInvoiceUpdate}
@@ -182,6 +206,7 @@ const Dashboard = () => {
                 invoice={invoice}
                 showBusinessHeader={showBusinessHeader}
                 currentUser={currentUser}
+                summary={summary}
               />
             </div>
           </div>
