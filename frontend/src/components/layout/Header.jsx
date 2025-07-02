@@ -11,13 +11,13 @@ const Header = () => {
   const [currency, setCurrency] = useState("INR");
   const dropdownRef = useRef(null);
 
-  const currencyOptions = [
-    { label: "₹ INR", value: "INR" },
-    { label: "$ USD", value: "USD" },
-    { label: "€ EUR", value: "EUR" },
-    { label: "£ GBP", value: "GBP" },
-    { label: "¥ JPY", value: "JPY" },
-  ];
+  // const currencyOptions = [
+  //   { label: "₹ INR", value: "INR" },
+  //   { label: "$ USD", value: "USD" },
+  //   { label: "€ EUR", value: "EUR" },
+  //   { label: "£ GBP", value: "GBP" },
+  //   { label: "¥ JPY", value: "JPY" },
+  // ];
 
   // useEffect(() => {
   //   // redirect if not authenticated
