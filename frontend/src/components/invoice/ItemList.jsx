@@ -6,9 +6,9 @@ import { Plus } from "lucide-react";
 import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
 
 const ItemList = ({ invoice, onUpdate, onAddItem, onRemoveItem }) => {
-  const { user } = useAuth(); // ✅ Authenticated user (optional)
-  const userId = user?._id || null;
-  console.log("Logged in user:", user);
+const { currentUser } = useAuth();
+const userId = currentUser?._id || null;
+  console.log("Logged in user:", currentUser);
 
   const calculateTotal = () => {
     return invoice.items.reduce((total, item) => total + item.amount, 0);

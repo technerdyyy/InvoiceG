@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import initialInvoiceState from "../data";
 import Button from "./ui/Button";
+import Skeleton from "./ui/Loader"; // ✅ Skeleton Loader
 import InvoiceHeader from "./invoice/InvoiceHeader";
 import ClientDetails from "./invoice/ClientDetails";
 import ItemList from "./invoice/ItemList";
@@ -11,10 +12,48 @@ import Header from "./layout/Header";
 import { Eye, EyeOff } from "lucide-react";
 
 const Dashboard = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, loading } = useAuth(); // ✅ Get user and loading state
   const [invoice, setInvoice] = useState(initialInvoiceState);
   const [showBusinessHeader, setShowBusinessHeader] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
+
+  // ✅ 1. Show loader while fetching user
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <Skeleton className="h-8 w-1/3 mb-6" />
+        <Skeleton className="h-96 w-full rounded-lg" />
+      </div>
+    );
+  }
+
+  // ✅ 2. Fallback UI if user not authenticated
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-gray-600 text-center px-4">
+        <h1 className="text-2xl font-semibold mb-2">You're not logged in</h1>
+        <p className="text-sm mb-4">Please log in to access your dashboard.</p>
+        <a
+          href="/login"
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Go to Login
+        </a>
+      </div>
+    );
+  }
+
+  // ✅ 3. Update items with userId if missing
+  useEffect(() => {
+    if (currentUser) {
+      setInvoice((prev) => ({
+        ...prev,
+        items: prev.items.map((item) =>
+          item.userId ? item : { ...item, userId: currentUser._id }
+        ),
+      }));
+    }
+  }, [currentUser]);
 
   const handleInvoiceUpdate = (field, value) => {
     setInvoice((prev) => ({ ...prev, [field]: value }));
@@ -27,6 +66,7 @@ const Dashboard = () => {
       quantity: 1,
       unitPrice: 0,
       amount: 0,
+      userId: currentUser._id, // ✅ Inject current user ID
     };
     setInvoice((prev) => ({
       ...prev,
