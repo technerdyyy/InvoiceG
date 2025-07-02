@@ -4,39 +4,41 @@ import Input from "../ui/Input";
 import ItemSuggestions from "./ItemSuggestions";
 import Button from "../ui/Button";
 import { Trash2, X } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
 
 const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const inputRef = useRef(null);
+  const { isAuthenticated } = useAuth();
 
   const handleDescriptionChange = async (value) => {
-    onUpdate(item.id, "description", value);
-    setHighlightedIndex(-1);
+  onUpdate(item.id, "description", value);
+  setHighlightedIndex(-1);
 
-    const userIdToUse = item.userId || null;
+  if (!isAuthenticated) return; // 👈 Don't fetch suggestions if not logged in
 
-    if (value.trim().length > 0) {
-      try {
-        const { data } = await axios.get(
-          `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
-        );
+  const userIdToUse = item.userId || null;
 
-        console.log("Fetched suggestions:", data);
-        const suggestionNames = data.map((s) => s.name);
-        setSuggestions(suggestionNames);
-        setShowSuggestions(true);
+  if (value.trim().length > 0) {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
+      );
 
-        // ❌ NO saving here!
-      } catch (err) {
-        console.error("Error fetching suggestions:", err);
-      }
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
+      console.log("Fetched suggestions:", data);
+      const suggestionNames = data.map((s) => s.name);
+      setSuggestions(suggestionNames);
+      setShowSuggestions(true);
+    } catch (err) {
+      console.error("Error fetching suggestions:", err);
     }
-  };
+  } else {
+    setSuggestions([]);
+    setShowSuggestions(false);
+  }
+};
 
   const handleSuggestionSelect = async (suggestion) => {
     onUpdate(item.id, "description", suggestion);

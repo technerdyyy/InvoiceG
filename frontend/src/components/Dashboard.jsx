@@ -47,27 +47,27 @@ const Dashboard = () => {
   };
 
   // ✅ Only show guest popup when first item is added
-  const addItem = () => {
-    const newItem = {
-      id: Date.now(),
-      description: "",
-      quantity: 1,
-      unitPrice: 0,
-      amount: 0,
-      userId: currentUser._id || null, // ✅ Inject current user ID
-      // userId: currentUser?._id || null,
-    };
-
-    setInvoice((prev) => ({
-      ...prev,
-      items: [...prev.items, newItem],
-    }));
-
-    if (!itemAddedOnce && !isAuthenticated) {
-      setItemAddedOnce(true);
-      setShowGuestPopup(true); // ✅ Show popup
-    }
+ const addItem = () => {
+  const newItem = {
+    id: Date.now(),
+    description: "",
+    quantity: 1,
+    unitPrice: 0,
+    amount: 0,
+    userId: currentUser ? currentUser._id : "guest", // ✅ FIXED: safe check
   };
+
+  setInvoice((prev) => ({
+    ...prev,
+    items: [...prev.items, newItem],
+  }));
+
+  if (!itemAddedOnce && !isAuthenticated) {
+    setItemAddedOnce(true);
+    setShowGuestPopup(true);
+  }
+};
+
 
   const removeItem = (id) => {
     setInvoice((prev) => ({
