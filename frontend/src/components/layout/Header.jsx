@@ -30,7 +30,8 @@ const Header = () => {
               src={logo}
               alt="InvoiceG logo"
               className="w-10 h-10 object-contain"
-            /> <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
+            />{" "}
+            <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
             {isAuthenticated && (
               <span className="text-sm text-gray-500">
                 ({currentUser?.businessName})
@@ -39,8 +40,6 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-           
-
             {/* 👤 Authenticated User Dropdown OR Login Button */}
             {isAuthenticated ? (
               <div className="relative" ref={dropdownRef}>
@@ -57,7 +56,7 @@ const Header = () => {
                     <div className="py-1">
                       <button
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => alert("My Profile clicked")}
+                        onClick={() => navigate("/profile")}
                       >
                         My Profile
                       </button>

@@ -14,7 +14,7 @@ const Button = ({
     secondary: "bg-gray-300 text-gray-800 hover:bg-gray-200",
     success: "bg-green-500 text-white hover:bg-green-600",
     danger: "bg-red-500 text-white hover:bg-red-600",
-    orange: "bg-orange-500 text-white hover:bg-orange-600",
+    orange: "bg-orange-400 text-white hover:bg-orange-600",
   };
   const sizes = {
     sm: "px-3 py-2 text-sm",
