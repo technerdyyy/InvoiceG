@@ -3,7 +3,7 @@ import axios from "axios";
 import Button from "../ui/Button";
 import InvoiceItem from "./InvoiceItem";
 import { Plus } from "lucide-react";
-import { useAuth } from "../../context/AuthContext"; // Adjust path if needed
+import { useAuth } from "../../context/AuthContext";
 
 const ItemList = ({
   invoice,
@@ -12,9 +12,8 @@ const ItemList = ({
   onRemoveItem,
   onFirstVisit,
 }) => {
-  const { currentUser } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
   const userId = currentUser?._id || null;
-  console.log("Logged in user:", currentUser);
   const hasNotifiedRef = useRef(false);
 
   useEffect(() => {
@@ -49,16 +48,14 @@ const ItemList = ({
     const lastItem = invoice.items[invoice.items.length - 1];
     const description = lastItem?.description?.trim();
 
-    if (description) {
+    if (description && isAuthenticated) {
       try {
-        // 🔍 Check if suggestion already exists
         const { data: existing } = await axios.get(
           `http://localhost:5000/api/suggestions?q=${description}&userId=${userId}`
         );
 
         const isAlreadySaved = existing.some((s) => s.name === description);
 
-        // 🧠 Save only if it's new
         if (!isAlreadySaved) {
           await axios.post("http://localhost:5000/api/suggestions", {
             name: description,
@@ -70,7 +67,6 @@ const ItemList = ({
       }
     }
 
-    // ➕ Call parent add item
     onAddItem();
   };
 
@@ -92,7 +88,7 @@ const ItemList = ({
         {invoice.items.map((item) => (
           <InvoiceItem
             key={item.id}
-            item={{ ...item, userId }} // 🔁 Pass userId into each item
+            item={{ ...item, userId }} // 👈 userId still passed for future flexibility
             onUpdate={handleItemUpdate}
             onRemove={onRemoveItem}
             canRemove={invoice.items.length > 1}

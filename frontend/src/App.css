@@ -1,0 +1,8 @@
+.pdf-safe * {
+  color: #000 !important;
+  background-color: #fff !important;
+  font-family: Arial, sans-serif !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  border-color: #ccc !important;
+}
