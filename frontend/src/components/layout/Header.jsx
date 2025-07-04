@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import useAuth from "../../hooks/useAuth";
 import { LogOut, User, ChevronDown } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import logo from "../../assets/invoice-logo.png";
 
 const Header = () => {
@@ -43,11 +43,16 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <img
-              src={logo}
-              alt="InvoiceG logo"
-              className="w-10 h-10 object-contain"
-            /> <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
+            <Link to = '/'>
+              <img
+                  src={logo}
+                alt="InvoiceG logo"
+                className="w-10 h-10 object-contain"
+              
+              />{" "}
+            </Link>
+            
+            <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
             {isAuthenticated && (
               <span className="text-sm text-gray-500">
                 ({currentUser?.businessName})
@@ -85,7 +90,7 @@ const Header = () => {
                     <div className="py-1">
                       <button
                         className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => alert("My Profile clicked")}
+                        onClick={() => navigate("/profile")}
                       >
                         My Profile
                       </button>

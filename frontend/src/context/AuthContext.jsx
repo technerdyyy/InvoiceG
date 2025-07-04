@@ -5,25 +5,16 @@ export const AuthContext = createContext();
 
 const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); // ⬅️ New
+  const [loading, setLoading] = useState(true); // loading
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("token");
-    if (storedToken) {
-      setToken(storedToken);
-      fetchUser(storedToken);
-    } else {
-      setLoading(false); // ⬅️ No token, stop loading
-    }
+    fetchUser(); // fetch on mount
   }, []);
 
-  const fetchUser = async (token) => {
+  const fetchUser = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include", // ✅ send cookies
       });
       const data = await res.json();
       if (res.ok) {
@@ -34,7 +25,7 @@ const AuthProvider = ({ children }) => {
     } catch (err) {
       logout();
     } finally {
-      setLoading(false); // ✅ Mark done
+      setLoading(false);
     }
   };
 
@@ -43,14 +34,13 @@ const AuthProvider = ({ children }) => {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ send and save cookies
         body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
       if (!res.ok) return { success: false, error: data.error };
 
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
       setCurrentUser(data.user);
       return { success: true };
     } catch (err) {
@@ -63,14 +53,13 @@ const AuthProvider = ({ children }) => {
       const res = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // ✅ save cookies
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
       if (!res.ok) return { success: false, error: data.error };
 
-      localStorage.setItem("token", data.token);
-      setToken(data.token);
       setCurrentUser(data.user);
       return { success: true };
     } catch (err) {
@@ -78,11 +67,18 @@ const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setCurrentUser(null);
-    setToken(null);
-    setLoading(false); // ✅ ensure loading ends
+  const logout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/auth/logout", {
+        method: "POST",
+        credentials: "include", // ✅ clear cookies
+      });
+    } catch (e) {
+      console.error("Logout failed");
+    } finally {
+      setCurrentUser(null);
+      setLoading(false);
+    }
   };
 
   return (
@@ -93,8 +89,7 @@ const AuthProvider = ({ children }) => {
         login,
         signup,
         logout,
-        token,
-        loading, // ⬅️ pass loading
+        loading,
       }}
     >
       {children}
