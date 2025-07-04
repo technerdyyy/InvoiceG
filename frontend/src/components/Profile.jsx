@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import Header from "./layout/Header";
 import Button from "./ui/Button";
@@ -11,11 +12,13 @@ import {
   EyeOff,
   Mail,
   Building,
+  FileEdit,
 } from "lucide-react";
 import axios from "axios";
 
 const Profile = () => {
   const { currentUser, isAuthenticated, updateProfile } = useAuth();
+  const navigate = useNavigate();
   const [invoices, setInvoices] = useState([]);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
 
@@ -165,6 +168,75 @@ const Profile = () => {
     }
   };
 
+  // ✅ Fixed Handle Edit Invoice - Navigate to Dashboard with invoice data
+  const handleEditInvoice = (invoice) => {
+    try {
+      console.log("📝 Editing invoice:", invoice);
+
+      // Transform invoice data to match Dashboard component structure
+      const invoiceData = {
+        // ✅ Invoice Basic Info
+        invoiceNumber: invoice.invoiceNumber || "",
+        date: invoice.date
+          ? new Date(invoice.date).toISOString().split("T")[0]
+          : new Date().toISOString().split("T")[0],
+
+        // ✅ Client Details
+        clientDetails: invoice.clientDetails || "",
+        contactInfo: invoice.contactInformation || "",
+        referenceNumber: invoice.referenceNumber || "",
+        serviceDescription: invoice.serviceDescription || "",
+
+        // ✅ Items - Transform backend format to frontend format
+        items:
+          invoice.items?.map((item, index) => ({
+            id: item.id || Date.now() + index,
+            description: item.name || "", // Map backend 'name' to frontend 'description'
+            quantity: item.quantity || 1,
+            unitPrice: item.unitPrice || 0,
+            amount: item.amount || item.quantity * item.unitPrice || 0,
+            userId: currentUser?._id || "guest",
+          })) || [],
+
+        // ✅ Business Info - Properly structure for BusinessDetails component
+        businessInfo: {
+          businessName: invoice.businessName || "",
+          registrationNumber: invoice.registrationNumber || "",
+          businessAddress: invoice.businessAddress || "",
+          cityRegion: invoice.cityRegion || "",
+          representativeName: invoice.representativeName || "",
+        },
+
+        // ✅ Payment Terms
+        paymentTerms: invoice.paymentTerms || "",
+        customerNumber: invoice.customerNumber || "",
+
+        // ✅ Summary data (will be handled separately by Dashboard)
+        discount: invoice.discount || 0,
+        cgst: invoice.cgst || 0,
+        sgst: invoice.sgst || 0,
+
+        // ✅ Edit mode flags
+        isEditing: true,
+        originalInvoiceId: invoice._id,
+      };
+
+      console.log("🔄 Transformed invoice data:", invoiceData);
+
+      // Store in localStorage for Dashboard to pick up
+      localStorage.setItem("invoiceData", JSON.stringify(invoiceData));
+
+      // Navigate to dashboard
+      navigate("/");
+    } catch (error) {
+      console.error("❌ Error preparing invoice for editing:", error);
+      setMessage({
+        type: "error",
+        text: "Failed to load invoice for editing",
+      });
+    }
+  };
+
   if (!isAuthenticated || !currentUser) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -189,7 +261,9 @@ const Profile = () => {
               <User className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Profile Settings
+              </h1>
               <p className="text-gray-600">Manage your account information</p>
             </div>
           </div>
@@ -214,14 +288,20 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Building className="w-5 h-5 text-gray-400" />
-                  <h3 className="text-lg font-medium text-gray-900">Business Name</h3>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Business Name
+                  </h3>
                 </div>
                 <Button
                   variant="secondary"
                   onClick={() => toggleEdit("businessName")}
                   disabled={isLoading}
                 >
-                  {isEditing.businessName ? <X size={16} /> : <Edit size={16} />}
+                  {isEditing.businessName ? (
+                    <X size={16} />
+                  ) : (
+                    <Edit size={16} />
+                  )}
                   <span className="ml-2">
                     {isEditing.businessName ? "Cancel" : "Edit"}
                   </span>
@@ -258,7 +338,9 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Mail className="w-5 h-5 text-gray-400" />
-                  <h3 className="text-lg font-medium text-gray-900">Email Address</h3>
+                  <h3 className="text-lg font-medium text-gray-900">
+                    Email Address
+                  </h3>
                 </div>
                 <Button
                   variant="secondary"
@@ -323,7 +405,11 @@ const Profile = () => {
                         </label>
                         <div className="relative">
                           <input
-                            type={showPasswords[field.split("Password")[0]] ? "text" : "password"}
+                            type={
+                              showPasswords[field.split("Password")[0]]
+                                ? "text"
+                                : "password"
+                            }
                             name={field}
                             value={formData[field]}
                             onChange={handleInputChange}
@@ -331,7 +417,11 @@ const Profile = () => {
                           />
                           <button
                             type="button"
-                            onClick={() => togglePasswordVisibility(field.split("Password")[0])}
+                            onClick={() =>
+                              togglePasswordVisibility(
+                                field.split("Password")[0]
+                              )
+                            }
                             className="absolute inset-y-0 right-0 pr-3 flex items-center"
                           >
                             {showPasswords[field.split("Password")[0]] ? (
@@ -363,7 +453,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Invoice List */}
+        {/* Invoice List with Edit Buttons */}
         <div className="mt-6 bg-white shadow rounded-lg p-6">
           <h3 className="text-lg font-medium text-gray-900 mb-4">
             Saved Invoices
@@ -379,6 +469,9 @@ const Profile = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Invoice Number
+                    </th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
                       Invoice Date
                     </th>
                     <th className="px-4 py-2 text-left font-medium text-gray-700">
@@ -390,24 +483,40 @@ const Profile = () => {
                     <th className="px-4 py-2 text-left font-medium text-gray-700">
                       Amount
                     </th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
                   {invoices.map((invoice) => (
-                    <tr key={invoice._id}>
-                      <td className="px-4 py-2">
+                    <tr key={invoice._id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3 font-medium">
+                        {invoice.invoiceNumber || "N/A"}
+                      </td>
+                      <td className="px-4 py-3">
                         {invoice.date
                           ? new Date(invoice.date).toLocaleDateString()
                           : "N/A"}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         {invoice.clientDetails || "N/A"}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3">
                         {invoice.customerNumber || "N/A"}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-3 font-medium">
                         ₹{invoice.totalAmount?.toFixed(2) || "0.00"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button
+                          variant="secondary"
+                          onClick={() => handleEditInvoice(invoice)}
+                          className="flex items-center space-x-1"
+                        >
+                          <FileEdit size={14} />
+                          <span>Edit</span>
+                        </Button>
                       </td>
                     </tr>
                   ))}
