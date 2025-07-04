@@ -2,35 +2,44 @@ import React, { useState, useEffect } from "react";
 import useAuth from "../hooks/useAuth";
 import Header from "./layout/Header";
 import Button from "./ui/Button";
-import { User, Edit, Save, X, Eye, EyeOff, Mail, Building } from "lucide-react";
+import {
+  User,
+  Edit,
+  Save,
+  X,
+  Eye,
+  EyeOff,
+  Mail,
+  Building,
+} from "lucide-react";
 import axios from "axios";
 
 const Profile = () => {
   const { currentUser, isAuthenticated, updateProfile } = useAuth();
   const [invoices, setInvoices] = useState([]);
   const [invoiceLoading, setInvoiceLoading] = useState(false);
+
   useEffect(() => {
-  const fetchInvoices = async () => {
-    if (!isAuthenticated) return;
+    const fetchInvoices = async () => {
+      if (!isAuthenticated) return;
 
-    try {
-      setInvoiceLoading(true);
-      const res = await axios.get("http://localhost:5000/api/invoices", {
-  withCredentials: true, // ✅ this sends the cookie
-});
+      try {
+        setInvoiceLoading(true);
+        const res = await axios.get("http://localhost:5000/api/invoices", {
+          withCredentials: true,
+        });
 
-      setInvoices(res.data);
-    } catch (err) {
-      console.error("❌ Error fetching invoices:", err);
-    } finally {
-      setInvoiceLoading(false);
-    }
-  };
+        setInvoices(res.data);
+      } catch (err) {
+        console.error("❌ Error fetching invoices:", err);
+      } finally {
+        setInvoiceLoading(false);
+      }
+    };
 
-  fetchInvoices();
-}, [isAuthenticated]);
+    fetchInvoices();
+  }, [isAuthenticated]);
 
-  // Form states
   const [formData, setFormData] = useState({
     businessName: "",
     email: "",
@@ -39,7 +48,6 @@ const Profile = () => {
     confirmPassword: "",
   });
 
-  // UI states
   const [isEditing, setIsEditing] = useState({
     businessName: false,
     email: false,
@@ -55,7 +63,6 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Initialize form data when user loads
   useEffect(() => {
     if (currentUser) {
       setFormData((prev) => ({
@@ -66,7 +73,6 @@ const Profile = () => {
     }
   }, [currentUser]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -75,14 +81,12 @@ const Profile = () => {
     }));
   };
 
-  // Toggle edit mode for specific fields
   const toggleEdit = (field) => {
     setIsEditing((prev) => ({
       ...prev,
       [field]: !prev[field],
     }));
 
-    // Reset form data if canceling edit
     if (isEditing[field]) {
       if (field === "businessName") {
         setFormData((prev) => ({
@@ -102,7 +106,6 @@ const Profile = () => {
     }
   };
 
-  // Toggle password visibility
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({
       ...prev,
@@ -110,7 +113,6 @@ const Profile = () => {
     }));
   };
 
-  // Save individual field
   const saveField = async (field) => {
     setIsLoading(true);
     setMessage({ type: "", text: "" });
@@ -135,7 +137,6 @@ const Profile = () => {
         };
       }
 
-      // Call your update function (you'll need to implement this in useAuth)
       await updateProfile(updateData);
 
       setMessage({
@@ -146,7 +147,6 @@ const Profile = () => {
       });
       setIsEditing((prev) => ({ ...prev, [field]: false }));
 
-      // Clear password fields after successful update
       if (field === "password") {
         setFormData((prev) => ({
           ...prev,
@@ -183,22 +183,18 @@ const Profile = () => {
       <Header />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
         <div className="mb-8">
           <div className="flex items-center space-x-3">
             <div className="bg-blue-100 p-3 rounded-full">
               <User className="w-8 h-8 text-blue-600" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Profile Settings
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
               <p className="text-gray-600">Manage your account information</p>
             </div>
           </div>
         </div>
 
-        {/* Message Display */}
         {message.text && (
           <div
             className={`mb-6 p-4 rounded-lg ${
@@ -211,7 +207,6 @@ const Profile = () => {
           </div>
         )}
 
-        {/* Profile Form */}
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
             {/* Business Name Section */}
@@ -219,26 +214,19 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Building className="w-5 h-5 text-gray-400" />
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Business Name
-                  </h3>
+                  <h3 className="text-lg font-medium text-gray-900">Business Name</h3>
                 </div>
                 <Button
                   variant="secondary"
                   onClick={() => toggleEdit("businessName")}
                   disabled={isLoading}
                 >
-                  {isEditing.businessName ? (
-                    <X size={16} />
-                  ) : (
-                    <Edit size={16} />
-                  )}
+                  {isEditing.businessName ? <X size={16} /> : <Edit size={16} />}
                   <span className="ml-2">
                     {isEditing.businessName ? "Cancel" : "Edit"}
                   </span>
                 </Button>
               </div>
-
               {isEditing.businessName ? (
                 <div className="flex space-x-3">
                   <input
@@ -270,9 +258,7 @@ const Profile = () => {
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Mail className="w-5 h-5 text-gray-400" />
-                  <h3 className="text-lg font-medium text-gray-900">
-                    Email Address
-                  </h3>
+                  <h3 className="text-lg font-medium text-gray-900">Email Address</h3>
                 </div>
                 <Button
                   variant="secondary"
@@ -285,7 +271,6 @@ const Profile = () => {
                   </span>
                 </Button>
               </div>
-
               {isEditing.email ? (
                 <div className="flex space-x-3">
                   <input
@@ -326,92 +311,39 @@ const Profile = () => {
                 </Button>
               </div>
 
-              {isEditing.password ? (
+              {isEditing.password && (
                 <div className="space-y-4">
-                  {/* Current Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Current Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPasswords.current ? "text" : "password"}
-                        name="currentPassword"
-                        value={formData.currentPassword}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter current password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility("current")}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPasswords.current ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* New Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPasswords.new ? "text" : "password"}
-                        name="newPassword"
-                        value={formData.newPassword}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility("new")}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPasswords.new ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Confirm New Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm New Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPasswords.confirm ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        placeholder="Confirm new password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => togglePasswordVisibility("confirm")}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                      >
-                        {showPasswords.confirm ? (
-                          <EyeOff size={16} />
-                        ) : (
-                          <Eye size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
+                  {["currentPassword", "newPassword", "confirmPassword"].map(
+                    (field, i) => (
+                      <div key={field}>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {field
+                            .replace(/([A-Z])/g, " $1")
+                            .replace(/^./, (str) => str.toUpperCase())}
+                        </label>
+                        <div className="relative">
+                          <input
+                            type={showPasswords[field.split("Password")[0]] ? "text" : "password"}
+                            name={field}
+                            value={formData[field]}
+                            onChange={handleInputChange}
+                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => togglePasswordVisibility(field.split("Password")[0])}
+                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                          >
+                            {showPasswords[field.split("Password")[0]] ? (
+                              <EyeOff size={16} />
+                            ) : (
+                              <Eye size={16} />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  )}
                   <Button
                     variant="primary"
                     onClick={() => saveField("password")}
@@ -426,68 +358,63 @@ const Profile = () => {
                     <span className="ml-2">Update Password</span>
                   </Button>
                 </div>
-              ) : (
-                <p className="text-gray-700">••••••••</p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Account Info */}
+        {/* Invoice List */}
         <div className="mt-6 bg-white shadow rounded-lg p-6">
-          {/* Invoices Section */}
-<div className="mt-6 bg-white shadow rounded-lg p-6">
-  <h3 className="text-lg font-medium text-gray-900 mb-4">Saved Invoices</h3>
-
-  {invoiceLoading ? (
-    <p className="text-gray-500">Loading invoices...</p>
-  ) : invoices.length === 0 ? (
-    <p className="text-gray-500">No invoices found.</p>
-  ) : (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200 text-sm">
-        <thead className="bg-gray-50">
-          <tr>
-            <th className="px-4 py-2 text-left font-medium text-gray-700">Invoice Date</th>
-            <th className="px-4 py-2 text-left font-medium text-gray-700">Customer</th>
-            <th className="px-4 py-2 text-left font-medium text-gray-700">Email</th>
-            <th className="px-4 py-2 text-left font-medium text-gray-700">Amount</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-100">
-          {invoices.map((invoice) => (
-            <tr key={invoice._id}>
-              <td className="px-4 py-2">
-                {new Date(invoice.invoiceDate).toLocaleDateString()}
-              </td>
-              <td className="px-4 py-2">{invoice.customerName || "N/A"}</td>
-              <td className="px-4 py-2">{invoice.customerEmail || "N/A"}</td>
-              <td className="px-4 py-2">₹{invoice.totalAmount.toFixed(2)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )}
-</div>
-
           <h3 className="text-lg font-medium text-gray-900 mb-4">
-            Invoices saved
+            Saved Invoices
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-500">User ID:</span>
-              <span className="ml-2 text-gray-900">{currentUser._id}</span>
+
+          {invoiceLoading ? (
+            <p className="text-gray-500">Loading invoices...</p>
+          ) : invoices.length === 0 ? (
+            <p className="text-gray-500">No invoices found.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Invoice Date
+                    </th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Customer Name
+                    </th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Contact Number
+                    </th>
+                    <th className="px-4 py-2 text-left font-medium text-gray-700">
+                      Amount
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-100">
+                  {invoices.map((invoice) => (
+                    <tr key={invoice._id}>
+                      <td className="px-4 py-2">
+                        {invoice.date
+                          ? new Date(invoice.date).toLocaleDateString()
+                          : "N/A"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {invoice.clientDetails || "N/A"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {invoice.customerNumber || "N/A"}
+                      </td>
+                      <td className="px-4 py-2">
+                        ₹{invoice.totalAmount?.toFixed(2) || "0.00"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-            <div>
-              <span className="text-gray-500">Account Created:</span>
-              <span className="ml-2 text-gray-900">
-                {currentUser.createdAt
-                  ? new Date(currentUser.createdAt).toLocaleDateString()
-                  : "N/A"}
-              </span>
-            </div>
-          </div>
+          )}
         </div>
       </main>
     </div>
