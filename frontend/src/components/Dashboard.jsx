@@ -89,25 +89,55 @@ const Dashboard = () => {
     }));
   };
 
-  const handleSave = async () => {
+ const handleSave = async () => {
   if (!isAuthenticated || !currentUser) {
     setShowGuestPopup(true);
     return;
   }
 
   try {
+    const totalAmount = invoice.items.reduce(
+      (acc, item) => acc + item.quantity * item.unitPrice,
+      0
+    );
+
     const invoiceData = {
-      customerName: invoice.clientDetails || "Unnamed Client",
-      customerEmail: invoice.contactInfo || "noemail@example.com",
+      // 🔹 Business Details
+      businessName: invoice.businessName,
+      registrationNumber: invoice.registrationNumber,
+      businessAddress: invoice.businessAddress,
+      cityRegion: invoice.cityRegion,
+      representativeName: invoice.representativeName,
+
+      // 🔹 Invoice Info
+      invoiceNumber: invoice.invoiceNumber,
+      date: invoice.date,
+
+      // 🔹 Client Details
+      clientDetails: invoice.clientDetails,
+      contactInformation: invoice.contactInfo,
+      referenceNumber: invoice.referenceNumber,
+      serviceDescription: invoice.serviceDescription,
+
+      // 🔹 Items List
       items: invoice.items.map((item) => ({
-        description: item.description,
+        name: item.name,
         quantity: item.quantity,
-        price: item.unitPrice,
+        unitPrice: item.unitPrice,
+        amount: item.quantity * item.unitPrice,
       })),
-      totalAmount: invoice.items.reduce(
-        (acc, item) => acc + item.quantity * item.unitPrice,
-        0
-      ),
+
+      // 🔹 Totals & Tax
+      totalAmount,
+      discount: invoice.discount || 0,
+      cgst: invoice.cgst || 0,
+      sgst: invoice.sgst || 0,
+
+      // 🔹 Payment Terms
+      paymentTerms: invoice.paymentTerms,
+
+      // 🔹 Customer Number (replacing email)
+      customerNumber: invoice.customerNumber || "0000000000",
     };
 
     const response = await axios.post(
@@ -121,7 +151,7 @@ const Dashboard = () => {
     console.log("✅ Invoice saved:", response.data);
     alert("Invoice saved successfully!");
 
-    // ✅ Clear saved data from localStorage and reset state
+    // ✅ Clear localStorage and reset invoice form
     localStorage.removeItem("invoiceData");
     setInvoice(initialInvoiceState);
   } catch (error) {
@@ -270,6 +300,8 @@ const Dashboard = () => {
                   invoice={invoice}
                   showBusinessHeader={showBusinessHeader}
                   currentUser={currentUser}
+                  summary={summary}
+                  
                 />
               </div>
             </div>
