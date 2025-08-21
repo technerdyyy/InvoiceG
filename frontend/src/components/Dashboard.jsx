@@ -13,25 +13,15 @@ import InvoiceSummary from "./invoice/InvoiceSummary";
 import Popup from "./ui/Popup";
 import { Eye, EyeOff, Save, Download, AlertCircle } from "lucide-react";
 import axios from "axios";
+import { useSearchParams } from "react-router-dom";
+
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
+  const [searchParams] = useSearchParams();
 
   // ✅ Load initial state from localStorage if exists (with edit support)
-  const [invoice, setInvoice] = useState(() => {
-    const saved = localStorage.getItem("invoiceData");
-    if (saved) {
-      try {
-        const parsedData = JSON.parse(saved);
-        // If it's editing data, use it; otherwise fallback to initial state
-        return parsedData.isEditing ? parsedData : initialInvoiceState;
-      } catch (error) {
-        console.error("Error parsing saved invoice data:", error);
-        return initialInvoiceState;
-      }
-    }
-    return initialInvoiceState;
-  });
+  const [invoice, setInvoice] = useState(initialInvoiceState);
 
   const [showBusinessHeader, setShowBusinessHeader] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
@@ -50,80 +40,135 @@ const Dashboard = () => {
   });
 
   const previewRef = useRef();
+  useEffect(() => {
+  const fetchInvoiceForEdit = async () => {
+    const invoiceId = searchParams.get("edit");
+    if (!invoiceId || !isAuthenticated) return;
+
+    try {
+      const res = await axios.get(
+        `http://localhost:5000/api/invoices/${invoiceId}`,
+        { withCredentials: true }
+      );
+
+      const invoiceFromBackend = res.data;
+      // console.log(res.data);
+
+      const mappedInvoice = {
+        businessInfo: {
+          businessName: invoiceFromBackend.businessName || "",
+          registrationNumber: invoiceFromBackend.registrationNumber || "",
+          businessAddress: invoiceFromBackend.businessAddress || "",
+          cityRegion: invoiceFromBackend.cityRegion || "",
+          representativeName: invoiceFromBackend.representativeName || "",
+        },
+        invoiceNumber: invoiceFromBackend.invoiceNumber || "",
+        date: invoiceFromBackend.date?.split("T")[0] || new Date().toISOString().split("T")[0],
+        clientDetails: invoiceFromBackend.clientDetails || "",
+        contactInfo: invoiceFromBackend.contactInformation || "",
+        referenceNumber: invoiceFromBackend.referenceNumber || "",
+        serviceDescription: invoiceFromBackend.serviceDescription || "",
+        items: invoiceFromBackend.items?.map((item, index) => ({
+          id: item.id || Date.now() + index,
+          description: item.name || "",
+          quantity: item.quantity || 1,
+          unitPrice: item.unitPrice || 0,
+          amount: item.amount || item.quantity * item.unitPrice || 0,
+          userId: currentUser?._id || "guest",
+        })) || [],
+        paymentTerms: invoiceFromBackend.paymentTerms || "",
+        customerNumber: invoiceFromBackend.customerNumber || "",
+      };
+
+      setInvoice(mappedInvoice);
+      setIsEditingExistingInvoice(true);
+      setEditingInvoiceId(invoiceId);
+      setSummary({
+        discount: invoiceFromBackend.discount || 0,
+        cgst: invoiceFromBackend.cgst || 0,
+        sgst: invoiceFromBackend.sgst || 0,
+      });
+    } catch (error) {
+      console.error("❌ Error loading invoice:", error);
+    }
+  };
+
+  fetchInvoiceForEdit();
+}, [searchParams, isAuthenticated]);
 
   // ✅ Check if we're editing an existing invoice on component mount
-  useEffect(() => {
-    const saved = localStorage.getItem("invoiceData");
-    if (saved) {
-      try {
-        const parsedData = JSON.parse(saved);
-        if (parsedData.isEditing && parsedData.originalInvoiceId) {
-          setIsEditingExistingInvoice(true);
-          setEditingInvoiceId(parsedData.originalInvoiceId);
+  // useEffect(() => {
+  //   const saved = localStorage.getItem("invoiceData");
+  //   if (saved) {
+  //     try {
+  //       const parsedData = JSON.parse(saved);
+  //       if (parsedData.isEditing && parsedData.originalInvoiceId) {
+  //         setIsEditingExistingInvoice(true);
+  //         setEditingInvoiceId(parsedData.originalInvoiceId);
 
-          // 🔹 Map backend data to frontend structure
-          const mappedInvoice = {
-            // Business Details - Map from flat structure to nested businessInfo
-            businessInfo: {
-              businessName: parsedData.businessName || "",
-              registrationNumber: parsedData.registrationNumber || "",
-              businessAddress: parsedData.businessAddress || "",
-              cityRegion: parsedData.cityRegion || "",
-              representativeName: parsedData.representativeName || "",
-            },
+  //         // 🔹 Map backend data to frontend structure
+  //         const mappedInvoice = {
+  //           // Business Details - Map from flat structure to nested businessInfo
+  //           businessInfo: {
+  //             businessName: parsedData.businessName || "",
+  //             registrationNumber: parsedData.registrationNumber || "",
+  //             businessAddress: parsedData.businessAddress || "",
+  //             cityRegion: parsedData.cityRegion || "",
+  //             representativeName: parsedData.representativeName || "",
+  //           },
 
-            // Invoice Details
-            invoiceNumber: parsedData.invoiceNumber || "",
-            date: parsedData.date || new Date().toISOString().split("T")[0],
+  //           // Invoice Details
+  //           invoiceNumber: parsedData.invoiceNumber || "",
+  //           date: parsedData.date || new Date().toISOString().split("T")[0],
 
-            // Client Details
-            clientDetails: parsedData.clientDetails || "",
-            contactInfo: parsedData.contactInformation || "",
-            referenceNumber: parsedData.referenceNumber || "",
-            serviceDescription: parsedData.serviceDescription || "",
+  //           // Client Details
+  //           clientDetails: parsedData.clientDetails || "",
+  //           contactInfo: parsedData.contactInformation || "",
+  //           referenceNumber: parsedData.referenceNumber || "",
+  //           serviceDescription: parsedData.serviceDescription || "",
 
-            // Items - Map 'name' to 'description' and ensure all required fields
-            items:
-              parsedData.items?.map((item, index) => ({
-                id: item.id || Date.now() + index,
-                description: item.name || item.description || "",
-                quantity: item.quantity || 1,
-                unitPrice: item.unitPrice || 0,
-                amount: item.amount || item.quantity * item.unitPrice || 0,
-                userId: currentUser ? currentUser._id : "guest",
-              })) || [],
+  //           // Items - Map 'name' to 'description' and ensure all required fields
+  //           items:
+  //             parsedData.items?.map((item, index) => ({
+  //               id: item.id || Date.now() + index,
+  //               description: item.name || item.description || "",
+  //               quantity: item.quantity || 1,
+  //               unitPrice: item.unitPrice || 0,
+  //               amount: item.amount || item.quantity * item.unitPrice || 0,
+  //               userId: currentUser ? currentUser._id : "guest",
+  //             })) || [],
 
-            // Payment Terms
-            paymentTerms: parsedData.paymentTerms || "",
+  //           // Payment Terms
+  //           paymentTerms: parsedData.paymentTerms || "",
 
-            // Customer Number
-            customerNumber: parsedData.customerNumber || "0000000000",
-          };
+  //           // Customer Number
+  //           customerNumber: parsedData.customerNumber || "0000000000",
+  //         };
 
-          setInvoice(mappedInvoice);
+  //         setInvoice(mappedInvoice);
 
-          // Set summary from the loaded data
-          setSummary({
-            discount: parsedData.discount || 0,
-            cgst: parsedData.cgst || 0,
-            sgst: parsedData.sgst || 0,
-          });
-        }
-      } catch (error) {
-        console.error("Error checking edit mode:", error);
-      }
-    }
-  }, [currentUser]);
+  //         // Set summary from the loaded data
+  //         setSummary({
+  //           discount: parsedData.discount || 0,
+  //           cgst: parsedData.cgst || 0,
+  //           sgst: parsedData.sgst || 0,
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("Error checking edit mode:", error);
+  //     }
+  //   }
+  // }, [currentUser]);
 
-  // ✅ Update localStorage whenever invoice changes (but preserve edit info)
-  useEffect(() => {
-    const dataToSave = {
-      ...invoice,
-      isEditing: isEditingExistingInvoice,
-      originalInvoiceId: editingInvoiceId,
-    };
-    localStorage.setItem("invoiceData", JSON.stringify(dataToSave));
-  }, [invoice, isEditingExistingInvoice, editingInvoiceId]);
+  // // ✅ Update localStorage whenever invoice changes (but preserve edit info)
+  // useEffect(() => {
+  //   const dataToSave = {
+  //     ...invoice,
+  //     isEditing: isEditingExistingInvoice,
+  //     originalInvoiceId: editingInvoiceId,
+  //   };
+  //   localStorage.setItem("invoiceData", JSON.stringify(dataToSave));
+  // }, [invoice, isEditingExistingInvoice, editingInvoiceId]);
 
   useEffect(() => {
     if (currentUser) {
@@ -266,12 +311,16 @@ const Dashboard = () => {
 
   // ✅ Handle creating new invoice (clear edit mode)
   const handleCreateNew = () => {
-    localStorage.removeItem("invoiceData");
-    setInvoice(initialInvoiceState);
-    setIsEditingExistingInvoice(false);
-    setEditingInvoiceId(null);
-    setSummary({ discount: 0, cgst: 0, sgst: 0 });
-  };
+  setInvoice(initialInvoiceState);
+  setIsEditingExistingInvoice(false);
+  setEditingInvoiceId(null);
+  setSummary({ discount: 0, cgst: 0, sgst: 0 });
+
+  // ✅ Clear search params
+  const params = new URLSearchParams(window.location.search);
+  params.delete("edit");
+  window.history.replaceState({}, "", `${window.location.pathname}`);
+};
 
   const handleDownloadPDF = async () => {
     try {

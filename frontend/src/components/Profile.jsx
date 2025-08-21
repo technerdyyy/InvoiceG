@@ -170,72 +170,20 @@ const Profile = () => {
 
   // ✅ Fixed Handle Edit Invoice - Navigate to Dashboard with invoice data
   const handleEditInvoice = (invoice) => {
-    try {
-      console.log("📝 Editing invoice:", invoice);
+  try {
+    if (!invoice._id) throw new Error("Missing invoice ID");
 
-      // Transform invoice data to match Dashboard component structure
-      const invoiceData = {
-        // ✅ Invoice Basic Info
-        invoiceNumber: invoice.invoiceNumber || "",
-        date: invoice.date
-          ? new Date(invoice.date).toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0],
+    // ✅ Navigate with ID only
+    navigate(`/?edit=${invoice._id}`);
+  } catch (error) {
+    console.error("❌ Error preparing invoice for editing:", error);
+    setMessage({
+      type: "error",
+      text: "Failed to load invoice for editing",
+    });
+  }
+};
 
-        // ✅ Client Details
-        clientDetails: invoice.clientDetails || "",
-        contactInfo: invoice.contactInformation || "",
-        referenceNumber: invoice.referenceNumber || "",
-        serviceDescription: invoice.serviceDescription || "",
-
-        // ✅ Items - Transform backend format to frontend format
-        items:
-          invoice.items?.map((item, index) => ({
-            id: item.id || Date.now() + index,
-            description: item.name || "", // Map backend 'name' to frontend 'description'
-            quantity: item.quantity || 1,
-            unitPrice: item.unitPrice || 0,
-            amount: item.amount || item.quantity * item.unitPrice || 0,
-            userId: currentUser?._id || "guest",
-          })) || [],
-
-        // ✅ Business Info - Properly structure for BusinessDetails component
-        businessInfo: {
-          businessName: invoice.businessName || "",
-          registrationNumber: invoice.registrationNumber || "",
-          businessAddress: invoice.businessAddress || "",
-          cityRegion: invoice.cityRegion || "",
-          representativeName: invoice.representativeName || "",
-        },
-
-        // ✅ Payment Terms
-        paymentTerms: invoice.paymentTerms || "",
-        customerNumber: invoice.customerNumber || "",
-
-        // ✅ Summary data (will be handled separately by Dashboard)
-        discount: invoice.discount || 0,
-        cgst: invoice.cgst || 0,
-        sgst: invoice.sgst || 0,
-
-        // ✅ Edit mode flags
-        isEditing: true,
-        originalInvoiceId: invoice._id,
-      };
-
-      console.log("🔄 Transformed invoice data:", invoiceData);
-
-      // Store in localStorage for Dashboard to pick up
-      localStorage.setItem("invoiceData", JSON.stringify(invoiceData));
-
-      // Navigate to dashboard
-      navigate("/");
-    } catch (error) {
-      console.error("❌ Error preparing invoice for editing:", error);
-      setMessage({
-        type: "error",
-        text: "Failed to load invoice for editing",
-      });
-    }
-  };
 
   if (!isAuthenticated || !currentUser) {
     return (
