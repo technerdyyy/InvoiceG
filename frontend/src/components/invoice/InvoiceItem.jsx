@@ -24,7 +24,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     if (value.trim().length > 0) {
       try {
         const { data } = await axios.get(
-          `http://localhost:5000/api/suggestions?q=${value}&userId=${userIdToUse}`
+          `/api/suggestions?q=${value}&userId=${userIdToUse}`
         );
 
         const suggestionNames = data.map((s) => s.name);
@@ -48,7 +48,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     if (!isAuthenticated) return; // 👈 Block saving if not logged in
 
     try {
-      await axios.post("http://localhost:5000/api/suggestions", {
+      await axios.post("/api/suggestions", {
         name: suggestion,
         userId: item.userId || null,
       });

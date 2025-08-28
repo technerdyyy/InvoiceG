@@ -47,7 +47,7 @@ const Dashboard = () => {
 
     try {
       const res = await axios.get(
-        `http://localhost:5000/api/invoices/${invoiceId}`,
+        `/api/invoices/${invoiceId}`,
         { withCredentials: true }
       );
 
@@ -56,28 +56,29 @@ const Dashboard = () => {
 
       const mappedInvoice = {
         businessInfo: {
-          businessName: invoiceFromBackend.businessName || "",
-          registrationNumber: invoiceFromBackend.registrationNumber || "",
-          businessAddress: invoiceFromBackend.businessAddress || "",
-          cityRegion: invoiceFromBackend.cityRegion || "",
-          representativeName: invoiceFromBackend.representativeName || "",
+          businessName: invoiceFromBackend.businessName ?? "",
+          registrationNumber: invoiceFromBackend.registrationNumber ?? "",
+          address: invoiceFromBackend.businessAddress ?? "",
+          city: invoiceFromBackend.cityRegion ?? "",
+          representative: invoiceFromBackend.representativeName ?? "",
+          department: invoiceFromBackend.department ?? "",
         },
-        invoiceNumber: invoiceFromBackend.invoiceNumber || "",
-        date: invoiceFromBackend.date?.split("T")[0] || new Date().toISOString().split("T")[0],
-        clientDetails: invoiceFromBackend.clientDetails || "",
-        contactInfo: invoiceFromBackend.contactInformation || "",
-        referenceNumber: invoiceFromBackend.referenceNumber || "",
-        serviceDescription: invoiceFromBackend.serviceDescription || "",
-        items: invoiceFromBackend.items?.map((item, index) => ({
-          id: item.id || Date.now() + index,
-          description: item.name || "",
-          quantity: item.quantity || 1,
-          unitPrice: item.unitPrice || 0,
-          amount: item.amount || item.quantity * item.unitPrice || 0,
-          userId: currentUser?._id || "guest",
-        })) || [],
-        paymentTerms: invoiceFromBackend.paymentTerms || "",
-        customerNumber: invoiceFromBackend.customerNumber || "",
+        invoiceNumber: invoiceFromBackend.invoiceNumber ?? "",
+        date: invoiceFromBackend.date ? invoiceFromBackend.date.split("T")[0] : new Date().toISOString().split("T")[0],
+        clientDetails: invoiceFromBackend.clientDetails ?? "",
+        referenceNumber: invoiceFromBackend.referenceNumber ?? "",
+        contactInfo: invoiceFromBackend.contactInformation ?? "",
+        serviceDescription: invoiceFromBackend.serviceDescription ?? "",
+        terms: invoiceFromBackend.paymentTerms ?? "",
+        items: Array.isArray(invoiceFromBackend.items)
+          ? invoiceFromBackend.items.map((item, index) => ({
+              id: item.id ?? index + 1,
+              description: item.name ?? "",
+              quantity: item.quantity ?? 1,
+              unitPrice: item.unitPrice ?? 0,
+              amount: item.amount ?? (item.quantity ?? 1) * (item.unitPrice ?? 0),
+            }))
+          : [{ id: 1, description: "", quantity: 1, unitPrice: 0, amount: 0 }],
       };
 
       setInvoice(mappedInvoice);
@@ -234,9 +235,10 @@ const Dashboard = () => {
         // 🔹 Business Details - Map from nested structure to flat
         businessName: invoice.businessInfo?.businessName || "",
         registrationNumber: invoice.businessInfo?.registrationNumber || "",
-        businessAddress: invoice.businessInfo?.businessAddress || "",
-        cityRegion: invoice.businessInfo?.cityRegion || "",
-        representativeName: invoice.businessInfo?.representativeName || "",
+        businessAddress: invoice.businessInfo?.address || "",
+        cityRegion: invoice.businessInfo?.city || "",
+        representativeName: invoice.businessInfo?.representative || "",
+        department: invoice.businessInfo?.department || "",
 
         // 🔹 Invoice Info
         invoiceNumber: invoice.invoiceNumber,
@@ -275,7 +277,7 @@ const Dashboard = () => {
       if (isEditingExistingInvoice && editingInvoiceId) {
         // Update existing invoice
         response = await axios.put(
-          `http://localhost:5000/api/invoices/${editingInvoiceId}`,
+          `/api/invoices/${editingInvoiceId}`,
           invoiceData,
           {
             withCredentials: true,
@@ -285,7 +287,7 @@ const Dashboard = () => {
       } else {
         // Create new invoice
         response = await axios.post(
-          "http://localhost:5000/api/invoices",
+          "/api/invoices",
           invoiceData,
           {
             withCredentials: true,

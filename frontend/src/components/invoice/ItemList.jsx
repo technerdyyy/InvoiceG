@@ -51,13 +51,13 @@ const ItemList = ({
     if (description && isAuthenticated) {
       try {
         const { data: existing } = await axios.get(
-          `http://localhost:5000/api/suggestions?q=${description}&userId=${userId}`
+          `/api/suggestions?q=${description}&userId=${userId}`
         );
 
         const isAlreadySaved = existing.some((s) => s.name === description);
 
         if (!isAlreadySaved) {
-          await axios.post("http://localhost:5000/api/suggestions", {
+          await axios.post("/api/suggestions", {
             name: description,
             userId,
           });

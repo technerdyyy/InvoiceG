@@ -13,7 +13,7 @@ const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/me", {
+      const res = await fetch("/api/auth/me", {
         credentials: "include", // ✅ send cookies
       });
       const data = await res.json();
@@ -31,7 +31,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ✅ send and save cookies
@@ -50,7 +50,7 @@ const AuthProvider = ({ children }) => {
 
   const signup = async (formData) => {
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ✅ save cookies
@@ -69,7 +69,7 @@ const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch("http://localhost:5000/api/auth/logout", {
+      await fetch("/api/auth/logout", {
         method: "POST",
         credentials: "include", // ✅ clear cookies
       });

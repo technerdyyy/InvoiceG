@@ -28,7 +28,7 @@ const Profile = () => {
 
       try {
         setInvoiceLoading(true);
-        const res = await axios.get("http://localhost:5000/api/invoices", {
+        const res = await axios.get("/api/invoices", {
           withCredentials: true,
         });
 
