@@ -13,7 +13,9 @@ const AuthProvider = ({ children }) => {
 
   const fetchUser = async () => {
     try {
-      const res = await fetch("/api/auth/me", {
+      const BACKEND_URL =
+        import.meta.env.BACKEND_URL || "http://localhost:5000";
+      const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
         credentials: "include", // ✅ send cookies
       });
       const data = await res.json();
@@ -31,7 +33,9 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await fetch("/api/auth/login", {
+      const BACKEND_URL =
+        import.meta.env.BACKEND_URL || "http://localhost:5000";
+      const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ✅ send and save cookies
@@ -50,7 +54,9 @@ const AuthProvider = ({ children }) => {
 
   const signup = async (formData) => {
     try {
-      const res = await fetch("/api/auth/signup", {
+      const BACKEND_URL =
+        import.meta.env.BACKEND_URL || "http://localhost:5000";
+      const res = await fetch(`${BACKEND_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // ✅ save cookies
@@ -69,7 +75,9 @@ const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch("/api/auth/logout", {
+      const BACKEND_URL =
+        import.meta.env.BACKEND_URL || "http://localhost:5000";
+      await fetch(`${BACKEND_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include", // ✅ clear cookies
       });

@@ -51,16 +51,23 @@ const ItemList = ({
     if (description && isAuthenticated) {
       try {
         const { data: existing } = await axios.get(
-          `/api/suggestions?q=${description}&userId=${userId}`
+          `${
+            import.meta.env.BACKEND_URL || "http://localhost:5000"
+          }/api/suggestions?q=${description}&userId=${userId}`
         );
 
         const isAlreadySaved = existing.some((s) => s.name === description);
 
         if (!isAlreadySaved) {
-          await axios.post("/api/suggestions", {
-            name: description,
-            userId,
-          });
+          await axios.post(
+            `${
+              import.meta.env.BACKEND_URL || "http://localhost:5000"
+            }/api/suggestions`,
+            {
+              name: description,
+              userId,
+            }
+          );
         }
       } catch (err) {
         console.error("❌ Error saving suggestion:", err);

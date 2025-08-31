@@ -28,7 +28,9 @@ const Profile = () => {
 
       try {
         setInvoiceLoading(true);
-        const res = await axios.get("/api/invoices", {
+        const BACKEND_URL =
+          import.meta.env.BACKEND_URL || "http://localhost:5000";
+        const res = await axios.get(`${BACKEND_URL}/api/invoices`, {
           withCredentials: true,
         });
 
@@ -170,20 +172,19 @@ const Profile = () => {
 
   // ✅ Fixed Handle Edit Invoice - Navigate to Dashboard with invoice data
   const handleEditInvoice = (invoice) => {
-  try {
-    if (!invoice._id) throw new Error("Missing invoice ID");
+    try {
+      if (!invoice._id) throw new Error("Missing invoice ID");
 
-    // ✅ Navigate with ID only
-    navigate(`/?edit=${invoice._id}`);
-  } catch (error) {
-    console.error("❌ Error preparing invoice for editing:", error);
-    setMessage({
-      type: "error",
-      text: "Failed to load invoice for editing",
-    });
-  }
-};
-
+      // ✅ Navigate with ID only
+      navigate(`/?edit=${invoice._id}`);
+    } catch (error) {
+      console.error("❌ Error preparing invoice for editing:", error);
+      setMessage({
+        type: "error",
+        text: "Failed to load invoice for editing",
+      });
+    }
+  };
 
   if (!isAuthenticated || !currentUser) {
     return (

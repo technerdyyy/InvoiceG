@@ -24,7 +24,9 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     if (value.trim().length > 0) {
       try {
         const { data } = await axios.get(
-          `/api/suggestions?q=${value}&userId=${userIdToUse}`
+          `${
+            import.meta.env.BACKEND_URL || "http://localhost:5000"
+          }/api/suggestions?q=${value}&userId=${userIdToUse}`
         );
 
         const suggestionNames = data.map((s) => s.name);
@@ -48,10 +50,15 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     if (!isAuthenticated) return; // 👈 Block saving if not logged in
 
     try {
-      await axios.post("/api/suggestions", {
-        name: suggestion,
-        userId: item.userId || null,
-      });
+      await axios.post(
+        `${
+          import.meta.env.BACKEND_URL || "http://localhost:5000"
+        }/api/suggestions`,
+        {
+          name: suggestion,
+          userId: item.userId || null,
+        }
+      );
     } catch (err) {
       console.error("Failed to save suggestion:", err);
     }

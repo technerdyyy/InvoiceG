@@ -1,17 +1,19 @@
-import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import React from "react";
 
 const InvoicePreview = ({ invoice, showBusinessHeader, summary }) => {
-  const [showBreakdown, setShowBreakdown] = useState(false);
-
   // Ensure invoice and items exist
   if (!invoice || !invoice.items) {
-    return <div className="bg-white p-6 rounded-lg shadow-lg">Invalid invoice data</div>;
+    return (
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        Invalid invoice data
+      </div>
+    );
   }
 
   const calculateSubtotal = () =>
     invoice.items.reduce((total, item) => {
-      const amount = item.amount || (item.quantity || 0) * (item.unitPrice || 0);
+      const amount =
+        item.amount || (item.quantity || 0) * (item.unitPrice || 0);
       return total + amount;
     }, 0);
 
@@ -40,21 +42,34 @@ const InvoicePreview = ({ invoice, showBusinessHeader, summary }) => {
       >
         {/* Business Header */}
         {showBusinessHeader && businessInfo.businessName && (
-          <div className="mb-6 border-b pb-4" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+          <div
+            className="mb-6 border-b pb-4"
+            style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
+          >
             <h2 className="font-bold text-xl text-blue-600 mb-2">
               {businessInfo.businessName}
             </h2>
             <div className="text-sm space-y-1">
               {businessInfo.registrationNumber && (
-                <p className="text-gray-700">Reg. No: {businessInfo.registrationNumber}</p>
+                <p className="text-gray-700">
+                  Reg. No: {businessInfo.registrationNumber}
+                </p>
               )}
-              {businessInfo.address && <p className="text-gray-700">{businessInfo.address}</p>}
-              {businessInfo.city && <p className="text-gray-700">{businessInfo.city}</p>}
+              {businessInfo.address && (
+                <p className="text-gray-700">{businessInfo.address}</p>
+              )}
+              {businessInfo.city && (
+                <p className="text-gray-700">{businessInfo.city}</p>
+              )}
               {businessInfo.representative && (
-                <p className="text-gray-700">Representative: {businessInfo.representative}</p>
+                <p className="text-gray-700">
+                  Representative: {businessInfo.representative}
+                </p>
               )}
               {businessInfo.department && (
-                <p className="text-gray-700">Department: {businessInfo.department}</p>
+                <p className="text-gray-700">
+                  Department: {businessInfo.department}
+                </p>
               )}
             </div>
           </div>
@@ -66,13 +81,18 @@ const InvoicePreview = ({ invoice, showBusinessHeader, summary }) => {
             <h3 className="font-bold mb-2 text-gray-800">Bill To:</h3>
             <div className="text-sm space-y-1">
               {invoice.clientDetails && (
-                <p className="text-blue-600 font-medium">{invoice.clientDetails}</p>
+                <p className="text-blue-600 font-medium">
+                  {invoice.clientDetails}
+                </p>
               )}
               {invoice.contactInfo && (
                 <p className="text-gray-700">{invoice.contactInfo}</p>
               )}
               {invoice.serviceDescription && (
-                <p className="text-gray-700"><span className="font-medium">Service:</span> {invoice.serviceDescription}</p>
+                <p className="text-gray-700">
+                  <span className="font-medium">Service:</span>{" "}
+                  {invoice.serviceDescription}
+                </p>
               )}
             </div>
           </div>
@@ -96,91 +116,98 @@ const InvoicePreview = ({ invoice, showBusinessHeader, summary }) => {
         </div>
 
         {/* Items Table */}
-        <div className="border border-gray-300 rounded mb-6" style={{ overflow: "visible" }}>
-          <div className="grid grid-cols-4 gap-4 p-4 bg-gray-100 font-semibold text-sm border-b" style={{ breakInside: "avoid", pageBreakInside: "avoid" }}>
+        <div
+          className="border border-gray-300 rounded mb-6"
+          style={{ overflow: "visible" }}
+        >
+          <div
+            className="grid grid-cols-4 gap-4 p-4 bg-gray-100 font-semibold text-sm border-b"
+            style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
+          >
             <div>Description</div>
             <div className="text-center">Quantity</div>
             <div className="text-right">Unit Price</div>
             <div className="text-right">Amount</div>
           </div>
           {invoice.items.map((item, index) => {
-            const itemAmount = item.amount || (item.quantity || 0) * (item.unitPrice || 0);
+            const itemAmount =
+              item.amount || (item.quantity || 0) * (item.unitPrice || 0);
             return (
               <div
                 key={item.id || index}
                 className="grid grid-cols-4 gap-4 p-4 border-b last:border-b-0 text-sm hover:bg-gray-50"
                 style={{ breakInside: "avoid", pageBreakInside: "avoid" }}
               >
-                <div className="text-gray-800" style={{ wordBreak: "break-word" }}>
-                  {item.description || item.name || 'No description'}
+                <div
+                  className="text-gray-800"
+                  style={{ wordBreak: "break-word" }}
+                >
+                  {item.description || item.name || "No description"}
                 </div>
-                <div className="text-center text-gray-700">{item.quantity || 0}</div>
-                <div className="text-right text-gray-700">₹{(item.unitPrice || 0).toFixed(2)}</div>
-                <div className="text-right font-medium">₹{itemAmount.toFixed(2)}</div>
+                <div className="text-center text-gray-700">
+                  {item.quantity || 0}
+                </div>
+                <div className="text-right text-gray-700">
+                  ₹{(item.unitPrice || 0).toFixed(2)}
+                </div>
+                <div className="text-right font-medium">
+                  ₹{itemAmount.toFixed(2)}
+                </div>
               </div>
             );
           })}
         </div>
 
-        {/* Total + Breakdown */}
-        <div className="flex justify-end">
+        {/* Always show breakdown at the bottom */}
+        <div className="flex justify-end mt-8">
           <div className="w-80 space-y-2">
-            <div
-              className="flex justify-between font-bold text-lg cursor-pointer pt-2 border-t-2 border-gray-300"
-              onClick={() => setShowBreakdown(!showBreakdown)}
-            >
-              <span className="text-gray-800">Grand Total</span>
-              <div className="flex items-center space-x-2">
+            <div className="bg-gray-50 text-sm rounded-lg p-4 space-y-2 border">
+              <div className="flex justify-between text-gray-800">
+                <span>Subtotal:</span>
+                <span className="font-medium">₹{subtotal.toFixed(2)}</span>
+              </div>
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Discount ({summary?.discount || 0}%):</span>
+                  <span className="font-medium">
+                    - ₹{discountAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-gray-700">
+                  <span>Taxable Amount:</span>
+                  <span className="font-medium">
+                    ₹{taxableAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {cgstAmount > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>CGST ({summary?.cgst || 0}%):</span>
+                  <span className="font-medium">
+                    + ₹{cgstAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              {sgstAmount > 0 && (
+                <div className="flex justify-between text-red-600">
+                  <span>SGST ({summary?.sgst || 0}%):</span>
+                  <span className="font-medium">
+                    + ₹{sgstAmount.toFixed(2)}
+                  </span>
+                </div>
+              )}
+
+              <div className="flex justify-between font-bold pt-4 border-t text-2xl text-gray-900">
+                <span>Grand Total:</span>
                 <span className="text-blue-600">₹{total.toFixed(2)}</span>
-                {showBreakdown ? (
-                  <ChevronUp size={18} className="text-gray-500" />
-                ) : (
-                  <ChevronDown size={18} className="text-gray-500" />
-                )}
               </div>
             </div>
-
-            {showBreakdown && (
-              <div className="bg-gray-50 text-sm rounded-lg p-4 space-y-2 border mt-3">
-                <div className="flex justify-between text-gray-800">
-                  <span>Subtotal:</span>
-                  <span className="font-medium">₹{subtotal.toFixed(2)}</span>
-                </div>
-
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount ({summary?.discount || 0}%):</span>
-                    <span className="font-medium">- ₹{discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-
-                {discountAmount > 0 && (
-                  <div className="flex justify-between text-gray-700">
-                    <span>Taxable Amount:</span>
-                    <span className="font-medium">₹{taxableAmount.toFixed(2)}</span>
-                  </div>
-                )}
-
-                {cgstAmount > 0 && (
-                  <div className="flex justify-between text-red-600">
-                    <span>CGST ({summary?.cgst || 0}%):</span>
-                    <span className="font-medium">+ ₹{cgstAmount.toFixed(2)}</span>
-                  </div>
-                )}
-
-                {sgstAmount > 0 && (
-                  <div className="flex justify-between text-red-600">
-                    <span>SGST ({summary?.sgst || 0}%):</span>
-                    <span className="font-medium">+ ₹{sgstAmount.toFixed(2)}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between font-bold pt-2 border-t text-gray-900">
-                  <span>Grand Total:</span>
-                  <span className="text-blue-600">₹{total.toFixed(2)}</span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
@@ -190,7 +217,8 @@ const InvoicePreview = ({ invoice, showBusinessHeader, summary }) => {
             <h4 className="font-semibold mb-2">Payment Terms:</h4>
             <p>
               {invoice.terms}
-              {invoice.invoiceNumber && ` (Reference: Invoice #${invoice.invoiceNumber})`}
+              {invoice.invoiceNumber &&
+                ` (Reference: Invoice #${invoice.invoiceNumber})`}
             </p>
           </div>
         )}

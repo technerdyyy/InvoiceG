@@ -13,8 +13,8 @@ import InvoiceSummary from "./invoice/InvoiceSummary";
 import Popup from "./ui/Popup";
 import { Eye, EyeOff, Save, Download, AlertCircle } from "lucide-react";
 import axios from "axios";
+const BACKEND_URL = import.meta.env.BACKEND_URL || "http://localhost:5000";
 import { useSearchParams } from "react-router-dom";
-
 
 const Dashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
@@ -41,61 +41,72 @@ const Dashboard = () => {
 
   const previewRef = useRef();
   useEffect(() => {
-  const fetchInvoiceForEdit = async () => {
-    const invoiceId = searchParams.get("edit");
-    if (!invoiceId || !isAuthenticated) return;
+    const fetchInvoiceForEdit = async () => {
+      const invoiceId = searchParams.get("edit");
+      if (!invoiceId || !isAuthenticated) return;
 
-    try {
-      const res = await axios.get(
-        `/api/invoices/${invoiceId}`,
-        { withCredentials: true }
-      );
+      try {
+        const res = await axios.get(
+          `${BACKEND_URL}/api/invoices/${invoiceId}`,
+          { withCredentials: true }
+        );
 
-      const invoiceFromBackend = res.data;
-      // console.log(res.data);
+        const invoiceFromBackend = res.data;
+        // console.log(res.data);
 
-      const mappedInvoice = {
-        businessInfo: {
-          businessName: invoiceFromBackend.businessName ?? "",
-          registrationNumber: invoiceFromBackend.registrationNumber ?? "",
-          address: invoiceFromBackend.businessAddress ?? "",
-          city: invoiceFromBackend.cityRegion ?? "",
-          representative: invoiceFromBackend.representativeName ?? "",
-          department: invoiceFromBackend.department ?? "",
-        },
-        invoiceNumber: invoiceFromBackend.invoiceNumber ?? "",
-        date: invoiceFromBackend.date ? invoiceFromBackend.date.split("T")[0] : new Date().toISOString().split("T")[0],
-        clientDetails: invoiceFromBackend.clientDetails ?? "",
-        referenceNumber: invoiceFromBackend.referenceNumber ?? "",
-        contactInfo: invoiceFromBackend.contactInformation ?? "",
-        serviceDescription: invoiceFromBackend.serviceDescription ?? "",
-        terms: invoiceFromBackend.paymentTerms ?? "",
-        items: Array.isArray(invoiceFromBackend.items)
-          ? invoiceFromBackend.items.map((item, index) => ({
-              id: item.id ?? index + 1,
-              description: item.name ?? "",
-              quantity: item.quantity ?? 1,
-              unitPrice: item.unitPrice ?? 0,
-              amount: item.amount ?? (item.quantity ?? 1) * (item.unitPrice ?? 0),
-            }))
-          : [{ id: 1, description: "", quantity: 1, unitPrice: 0, amount: 0 }],
-      };
+        const mappedInvoice = {
+          businessInfo: {
+            businessName: invoiceFromBackend.businessName ?? "",
+            registrationNumber: invoiceFromBackend.registrationNumber ?? "",
+            address: invoiceFromBackend.businessAddress ?? "",
+            city: invoiceFromBackend.cityRegion ?? "",
+            representative: invoiceFromBackend.representativeName ?? "",
+            department: invoiceFromBackend.department ?? "",
+          },
+          invoiceNumber: invoiceFromBackend.invoiceNumber ?? "",
+          date: invoiceFromBackend.date
+            ? invoiceFromBackend.date.split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          clientDetails: invoiceFromBackend.clientDetails ?? "",
+          referenceNumber: invoiceFromBackend.referenceNumber ?? "",
+          contactInfo: invoiceFromBackend.contactInformation ?? "",
+          serviceDescription: invoiceFromBackend.serviceDescription ?? "",
+          terms: invoiceFromBackend.paymentTerms ?? "",
+          items: Array.isArray(invoiceFromBackend.items)
+            ? invoiceFromBackend.items.map((item, index) => ({
+                id: item.id ?? index + 1,
+                description: item.name ?? "",
+                quantity: item.quantity ?? 1,
+                unitPrice: item.unitPrice ?? 0,
+                amount:
+                  item.amount ?? (item.quantity ?? 1) * (item.unitPrice ?? 0),
+              }))
+            : [
+                {
+                  id: 1,
+                  description: "",
+                  quantity: 1,
+                  unitPrice: 0,
+                  amount: 0,
+                },
+              ],
+        };
 
-      setInvoice(mappedInvoice);
-      setIsEditingExistingInvoice(true);
-      setEditingInvoiceId(invoiceId);
-      setSummary({
-        discount: invoiceFromBackend.discount || 0,
-        cgst: invoiceFromBackend.cgst || 0,
-        sgst: invoiceFromBackend.sgst || 0,
-      });
-    } catch (error) {
-      console.error("❌ Error loading invoice:", error);
-    }
-  };
+        setInvoice(mappedInvoice);
+        setIsEditingExistingInvoice(true);
+        setEditingInvoiceId(invoiceId);
+        setSummary({
+          discount: invoiceFromBackend.discount || 0,
+          cgst: invoiceFromBackend.cgst || 0,
+          sgst: invoiceFromBackend.sgst || 0,
+        });
+      } catch (error) {
+        console.error("❌ Error loading invoice:", error);
+      }
+    };
 
-  fetchInvoiceForEdit();
-}, [searchParams, isAuthenticated]);
+    fetchInvoiceForEdit();
+  }, [searchParams, isAuthenticated]);
 
   // ✅ Check if we're editing an existing invoice on component mount
   // useEffect(() => {
@@ -277,7 +288,7 @@ const Dashboard = () => {
       if (isEditingExistingInvoice && editingInvoiceId) {
         // Update existing invoice
         response = await axios.put(
-          `/api/invoices/${editingInvoiceId}`,
+          `${BACKEND_URL}/api/invoices/${editingInvoiceId}`,
           invoiceData,
           {
             withCredentials: true,
@@ -287,7 +298,7 @@ const Dashboard = () => {
       } else {
         // Create new invoice
         response = await axios.post(
-          "/api/invoices",
+          `${BACKEND_URL}/api/invoices`,
           invoiceData,
           {
             withCredentials: true,
@@ -313,16 +324,16 @@ const Dashboard = () => {
 
   // ✅ Handle creating new invoice (clear edit mode)
   const handleCreateNew = () => {
-  setInvoice(initialInvoiceState);
-  setIsEditingExistingInvoice(false);
-  setEditingInvoiceId(null);
-  setSummary({ discount: 0, cgst: 0, sgst: 0 });
+    setInvoice(initialInvoiceState);
+    setIsEditingExistingInvoice(false);
+    setEditingInvoiceId(null);
+    setSummary({ discount: 0, cgst: 0, sgst: 0 });
 
-  // ✅ Clear search params
-  const params = new URLSearchParams(window.location.search);
-  params.delete("edit");
-  window.history.replaceState({}, "", `${window.location.pathname}`);
-};
+    // ✅ Clear search params
+    const params = new URLSearchParams(window.location.search);
+    params.delete("edit");
+    window.history.replaceState({}, "", `${window.location.pathname}`);
+  };
 
   const handleDownloadPDF = async () => {
     try {
@@ -419,7 +430,7 @@ const Dashboard = () => {
               className="lg:hidden"
             >
               {showPreview ? <EyeOff size={16} /> : <Eye size={16} />}
-              <span className="ml-2 hidden md:inline">
+              <span className="ml-2">
                 {showPreview ? "Hide Preview" : "Preview"}
               </span>
             </Button>
