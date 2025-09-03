@@ -4,7 +4,7 @@ import AuthProvider from "./context/AuthContext";
 import Dashboard from "./components/Dashboard";
 import AuthPage from "./components/auth/AuthPage";
 import Profile from "./components/Profile";
-import {HelmetProvider} from "react-helmet-async";
+
 
 const router = createBrowserRouter([
   {
@@ -23,12 +23,9 @@ const router = createBrowserRouter([
 
 function App() {
   return (
-    <HelmetProvider>
-      <AuthProvider>
+    <AuthProvider>
       <RouterProvider router={router} />
-      </AuthProvider>
-    </HelmetProvider>
-    
+    </AuthProvider>
   );
 }
 
