@@ -13,7 +13,7 @@ import InvoiceSummary from "./invoice/InvoiceSummary";
 import Popup from "./ui/Popup";
 import { Eye, EyeOff, Save, Download, AlertCircle } from "lucide-react";
 import axios from "axios";
-const BACKEND_URL = import.meta.env.BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
 import { useSearchParams } from "react-router-dom";
 
 const Dashboard = () => {

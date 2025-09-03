@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "http://localhost:5000";
+        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
       const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
         credentials: "include", // ✅ send cookies
       });
@@ -34,7 +34,7 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "http://localhost:5000";
+        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
       const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +55,7 @@ const AuthProvider = ({ children }) => {
   const signup = async (formData) => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "http://localhost:5000";
+        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
       const res = await fetch(`${BACKEND_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +76,7 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "http://localhost:5000";
+        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
       await fetch(`${BACKEND_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include", // ✅ clear cookies

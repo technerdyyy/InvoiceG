@@ -52,7 +52,7 @@ const ItemList = ({
       try {
         const { data: existing } = await axios.get(
           `${
-            import.meta.env.BACKEND_URL || "http://localhost:5000"
+            import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
           }/api/suggestions?q=${description}&userId=${userId}`
         );
 
@@ -61,7 +61,7 @@ const ItemList = ({
         if (!isAlreadySaved) {
           await axios.post(
             `${
-              import.meta.env.BACKEND_URL || "http://localhost:5000"
+              import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
             }/api/suggestions`,
             {
               name: description,
