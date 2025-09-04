@@ -29,7 +29,7 @@ const Profile = () => {
       try {
         setInvoiceLoading(true);
         const BACKEND_URL =
-          import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
+          import.meta.env.VITE_BACKEND_URL  ;
         const res = await axios.get(`${BACKEND_URL}/api/invoices`, {
           withCredentials: true,
         });

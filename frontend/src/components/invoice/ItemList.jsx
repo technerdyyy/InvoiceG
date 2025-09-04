@@ -48,21 +48,19 @@ const ItemList = ({
     const lastItem = invoice.items[invoice.items.length - 1];
     const description = lastItem?.description?.trim();
 
+        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
     if (description && isAuthenticated) {
       try {
         const { data: existing } = await axios.get(
-          `${
-            import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
-          }/api/suggestions?q=${description}&userId=${userId}`
+              `${backendUrl}/api/suggestions?q=${description}&userId=${userId}`
         );
 
         const isAlreadySaved = existing.some((s) => s.name === description);
 
         if (!isAlreadySaved) {
           await axios.post(
-            `${
-              import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
-            }/api/suggestions`,
+                `${backendUrl}/api/suggestions`,
             {
               name: description,
               userId,

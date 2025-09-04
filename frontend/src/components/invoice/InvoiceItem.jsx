@@ -25,7 +25,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
       try {
         const { data } = await axios.get(
           `${
-            import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
+            import.meta.env.VITE_BACKEND_URL  
           }/api/suggestions?q=${value}&userId=${userIdToUse}`
         );
 
@@ -52,7 +52,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
     try {
       await axios.post(
         `${
-          import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com"
+          import.meta.env.VITE_BACKEND_URL  
         }/api/suggestions`,
         {
           name: suggestion,

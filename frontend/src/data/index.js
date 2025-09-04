@@ -7,7 +7,7 @@ const initialInvoiceState = {
     representativeName: '',
     department: '',
   },
-  invoiceNumber: '2001321',
+  invoiceNumber: '0001',
   date: new Date().toLocaleDateString(),
   clientDetails: '',
   referenceNumber: '',

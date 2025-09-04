@@ -14,18 +14,30 @@ const AuthProvider = ({ children }) => {
   const fetchUser = async () => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
       const res = await fetch(`${BACKEND_URL}/api/auth/me`, {
         credentials: "include", // ✅ send cookies
+        headers: {
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        }
       });
+      
+      if (!res.ok) {
+        throw new Error('Authentication failed');
+      }
+      
       const data = await res.json();
-      if (res.ok) {
+      if (data.user) {
         setCurrentUser(data.user);
+        localStorage.setItem('isAuthenticated', 'true');
       } else {
-        logout();
+        throw new Error('No user data received');
       }
     } catch (err) {
-      logout();
+      console.error('Auth error:', err);
+      localStorage.removeItem('isAuthenticated');
+      setCurrentUser(null);
     } finally {
       setLoading(false);
     }
@@ -34,7 +46,7 @@ const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
+        import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
       const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -55,7 +67,7 @@ const AuthProvider = ({ children }) => {
   const signup = async (formData) => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
+        import.meta.env.VITE_BACKEND_URL  ;
       const res = await fetch(`${BACKEND_URL}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -76,7 +88,7 @@ const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const BACKEND_URL =
-        import.meta.env.BACKEND_URL || "https://invoicegen.dotdevz.com";
+        import.meta.env.VITE_BACKEND_URL  ;
       await fetch(`${BACKEND_URL}/api/auth/logout`, {
         method: "POST",
         credentials: "include", // ✅ clear cookies
