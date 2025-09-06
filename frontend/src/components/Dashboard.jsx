@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import initialInvoiceState from "../data";
@@ -203,6 +203,45 @@ const Dashboard = () => {
     }
   }, [currentUser]);
 
+  // ✅ Helper function to generate next invoice number
+  const generateNextInvoiceNumber = useCallback(async () => {
+    if (!isAuthenticated || !currentUser) return "0001";
+
+    try {
+      const res = await axios.get(`${VITE_BACKEND_URL}/api/invoices`, {
+        withCredentials: true,
+      });
+
+      const invoices = Array.isArray(res.data) ? res.data : [];
+      const nextNumber = invoices.length + 1;
+      const formattedNumber = nextNumber.toString().padStart(4, "0");
+      return formattedNumber;
+    } catch (error) {
+      console.error("❌ Error fetching invoices for numbering:", error);
+      return "0001"; // Fallback to default if error occurs
+    }
+  }, [isAuthenticated, currentUser]);
+
+  // ✅ Generate next invoice number based on user's existing invoices
+  useEffect(() => {
+    const setNextInvoiceNumber = async () => {
+      if (!isAuthenticated || !currentUser || isEditingExistingInvoice) return;
+
+      const nextInvoiceNumber = await generateNextInvoiceNumber();
+      setInvoice((prev) => ({
+        ...prev,
+        invoiceNumber: nextInvoiceNumber,
+      }));
+    };
+
+    setNextInvoiceNumber();
+  }, [
+    isAuthenticated,
+    currentUser,
+    isEditingExistingInvoice,
+    generateNextInvoiceNumber,
+  ]);
+
   const handleToggleEditBusinessInfo = () => {
     setIsEditingBusinessInfo((prev) => !prev);
   };
@@ -333,8 +372,13 @@ const Dashboard = () => {
   };
 
   // ✅ Handle creating new invoice (clear edit mode)
-  const handleCreateNew = () => {
-    setInvoice(initialInvoiceState);
+  const handleCreateNew = async () => {
+    const nextInvoiceNumber = await generateNextInvoiceNumber();
+
+    setInvoice({
+      ...initialInvoiceState,
+      invoiceNumber: nextInvoiceNumber,
+    });
     setIsEditingExistingInvoice(false);
     setEditingInvoiceId(null);
     setSummary({ discount: 0, cgst: 0, sgst: 0 });
@@ -385,8 +429,13 @@ const Dashboard = () => {
     }));
   };
 
-  const handleRefresh = () => {
-    setInvoice(initialInvoiceState);
+  const handleRefresh = async () => {
+    const nextInvoiceNumber = await generateNextInvoiceNumber();
+
+    setInvoice({
+      ...initialInvoiceState,
+      invoiceNumber: nextInvoiceNumber,
+    });
     setIsEditingExistingInvoice(false);
     setEditingInvoiceId(null);
     setSummary({ discount: 0, cgst: 0, sgst: 0 });

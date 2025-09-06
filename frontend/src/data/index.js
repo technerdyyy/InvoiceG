@@ -1,22 +1,20 @@
 const initialInvoiceState = {
   businessInfo: {
-    businessName: '',
-    registrationNumber: '',
-    businessAddress: '',
-    cityRegion: '',
-    representativeName: '',
-    department: '',
+    businessName: "",
+    registrationNumber: "",
+    businessAddress: "",
+    cityRegion: "",
+    representativeName: "",
+    department: "",
   },
-  invoiceNumber: '0001',
+  invoiceNumber: "",
   date: new Date().toLocaleDateString(),
-  clientDetails: '',
-  referenceNumber: '',
-  contactInfo: '',
-  serviceDescription: '',
-  terms: '',
-  items: [
-    { id: 1, description: '', quantity: 1, unitPrice: 0, amount: 0 }
-  ]
+  clientDetails: "",
+  referenceNumber: "",
+  contactInfo: "",
+  serviceDescription: "",
+  terms: "",
+  items: [{ id: 1, description: "", quantity: 1, unitPrice: 0, amount: 0 }],
 };
-  
-export default initialInvoiceState
+
+export default initialInvoiceState;
