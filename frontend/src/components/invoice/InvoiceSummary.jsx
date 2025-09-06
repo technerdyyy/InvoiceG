@@ -12,11 +12,11 @@ const SummaryDetails = ({ summary, onUpdate }) => {
           </label>
           <input
             type="number"
-            value={summary.discount}
+            value={summary.discount || ""}
             onChange={(e) =>
               onUpdate("discount", parseFloat(e.target.value) || 0)
             }
-            className="w-full border rounded px-3 py-1"
+            className="w-full border rounded px-3 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
         </div>
@@ -26,11 +26,9 @@ const SummaryDetails = ({ summary, onUpdate }) => {
           </label>
           <input
             type="number"
-            value={summary.cgst}
-            onChange={(e) =>
-              onUpdate("cgst", parseFloat(e.target.value) || 0)
-            }
-            className="w-full border rounded px-3 py-1"
+            value={summary.cgst || ""}
+            onChange={(e) => onUpdate("cgst", parseFloat(e.target.value) || 0)}
+            className="w-full border rounded px-3 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
         </div>
@@ -40,11 +38,9 @@ const SummaryDetails = ({ summary, onUpdate }) => {
           </label>
           <input
             type="number"
-            value={summary.sgst}
-            onChange={(e) =>
-              onUpdate("sgst", parseFloat(e.target.value) || 0)
-            }
-            className="w-full border rounded px-3 py-1"
+            value={summary.sgst || ""}
+            onChange={(e) => onUpdate("sgst", parseFloat(e.target.value) || 0)}
+            className="w-full border rounded px-3 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             min="0"
           />
         </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import LoginForm from "./loginForm";
 import SignupForm from "./SignupForm";
+import SEO from "../SEO";
 import logo from "../../assets/invoice-logo.png";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../../hooks/useAuth"; // <-- Make sure you import this
@@ -19,15 +20,20 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center p-4">
+      <SEO
+        title={`${showLogin ? "Login" : "Sign Up"} | InvoiceGen`}
+        description={
+          showLogin
+            ? "Login to your InvoiceGen account to manage and create professional invoices for your business."
+            : "Create a new InvoiceGen account and start generating professional invoices for your business today."
+        }
+        keywords="login, signup, register, invoice generator, business account, invoicegen"
+        canonicalUrl="/auth"
+      />
       <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center space-x-3 mb-2">
-            <img
-              src={logo}
-              alt="InvoiceG logo"
-              className="w-10 h-10 object-contain"
-            />
-            <h1 className="text-3xl font-bold text-gray-800">InvoiceKart</h1>
+            <img src="/invoiceg.svg" alt="Invoice Gen" className="h-36 w-36" />
           </div>
           <p className="text-gray-600">For Restaurant & Food Business</p>
         </div>

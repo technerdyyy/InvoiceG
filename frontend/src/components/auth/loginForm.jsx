@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import Button from "../ui/Button";
 import Input from "../ui/Input";
@@ -9,9 +10,13 @@ const LoginForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Signing in...");
     const result = await login(formData.email, formData.password);
+    toast.dismiss(loadingToast);
     if (!result.success) {
-      alert(result.error);
+      toast.error(result.error || "Failed to sign in");
+    } else {
+      toast.success("Welcome back!");
     }
   };
 

@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import initialInvoiceState from "../data";
 import Button from "./ui/Button";
+import SEO from "./SEO";
 import InvoiceHeader from "./invoice/InvoiceHeader";
 import ClientDetails from "./invoice/ClientDetails";
 import ItemList from "./invoice/ItemList";
@@ -11,9 +13,17 @@ import Header from "./layout/Header";
 import BusinessDetails from "./invoice/BusinessDetails";
 import InvoiceSummary from "./invoice/InvoiceSummary";
 import Popup from "./ui/Popup";
-import { Eye, EyeOff, Save, Download, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Save,
+  Download,
+  AlertCircle,
+  RefreshCw,
+} from "lucide-react";
 import axios from "axios";
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL  ;
+const VITE_BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL || "https://invoicegen.dotdevz.com";
 import { useSearchParams } from "react-router-dom";
 
 const Dashboard = () => {
@@ -47,7 +57,7 @@ const Dashboard = () => {
 
       try {
         const res = await axios.get(
-          `${BACKEND_URL}/api/invoices/${invoiceId}`,
+          `${VITE_BACKEND_URL}/api/invoices/${invoiceId}`,
           { withCredentials: true }
         );
 
@@ -288,7 +298,7 @@ const Dashboard = () => {
       if (isEditingExistingInvoice && editingInvoiceId) {
         // Update existing invoice
         response = await axios.put(
-          `${BACKEND_URL}/api/invoices/${editingInvoiceId}`,
+          `${VITE_BACKEND_URL}/api/invoices/${editingInvoiceId}`,
           invoiceData,
           {
             withCredentials: true,
@@ -298,7 +308,7 @@ const Dashboard = () => {
       } else {
         // Create new invoice
         response = await axios.post(
-          `${BACKEND_URL}/api/invoices`,
+          `${VITE_BACKEND_URL}/api/invoices`,
           invoiceData,
           {
             withCredentials: true,
@@ -308,7 +318,7 @@ const Dashboard = () => {
       }
 
       console.log("✅ Invoice operation completed:", response.data);
-      alert(successMessage);
+      toast.success(successMessage);
 
       // ✅ Clear localStorage and reset invoice form
       localStorage.removeItem("invoiceData");
@@ -318,7 +328,7 @@ const Dashboard = () => {
       setSummary({ discount: 0, cgst: 0, sgst: 0 });
     } catch (error) {
       console.error("❌ Error saving invoice:", error);
-      alert("Failed to save invoice. See console.");
+      toast.error("Failed to save invoice. Please try again.");
     }
   };
 
@@ -336,6 +346,7 @@ const Dashboard = () => {
   };
 
   const handleDownloadPDF = async () => {
+    const loadingToast = toast.loading("Generating PDF...");
     try {
       console.log("⏳ Downloading invoice as PDF...");
       const html2pdf = (await import("html2pdf.js")).default;
@@ -343,6 +354,8 @@ const Dashboard = () => {
 
       if (!element) {
         console.error("❌ PDF element not found.");
+        toast.dismiss(loadingToast);
+        toast.error("PDF element not found.");
         return;
       }
 
@@ -355,10 +368,13 @@ const Dashboard = () => {
       };
 
       await html2pdf().set(options).from(element).save();
+      toast.dismiss(loadingToast);
+      toast.success("PDF downloaded successfully!");
       console.log("✅ PDF download complete!");
     } catch (error) {
       console.error("❌ Error generating PDF:", error);
-      alert("Failed to download PDF. Check the console for details.");
+      toast.dismiss(loadingToast);
+      toast.error("Failed to download PDF. Please try again.");
     }
   };
 
@@ -369,11 +385,43 @@ const Dashboard = () => {
     }));
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
+  const handleRefresh = () => {
+    setInvoice(initialInvoiceState);
+    setIsEditingExistingInvoice(false);
+    setEditingInvoiceId(null);
+    setSummary({ discount: 0, cgst: 0, sgst: 0 });
+    setShowBusinessHeader(true);
+    setIsEditingBusinessInfo(false);
+    toast.success("Form refreshed!");
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    // Clear search params
+    const params = new URLSearchParams(window.location.search);
+    params.delete("edit");
+    window.history.replaceState({}, "", `${window.location.pathname}`);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 overscroll-none">
+      <SEO
+        title={`${
+          isEditingExistingInvoice ? "Edit Invoice" : "Create Invoice"
+        } | InvoiceGen`}
+        description={
+          isEditingExistingInvoice
+            ? "Edit and update your existing invoice with InvoiceGen's professional invoice editor."
+            : "Create professional invoices quickly with InvoiceGen. Add items, calculate taxes, and generate PDF invoices for your business."
+        }
+        keywords="create invoice, edit invoice, professional invoices, business billing, PDF generator, GST invoices"
+        canonicalUrl="/"
+      />
+      <Header />
+      <main
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overscroll-none"
+        style={{
+          touchAction: "pan-x pan-y",
+          overscrollBehavior: "none",
+        }}
+      >
         {/* ✅ Edit Mode Indicator */}
         {isEditingExistingInvoice && (
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
@@ -409,6 +457,14 @@ const Dashboard = () => {
               <span className="ml-2 hidden md:inline">
                 {showBusinessHeader ? "Hide" : "Show"} Business Header
               </span>
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={handleRefresh}
+              className="flex items-center justify-center"
+              title="Refresh Form"
+            >
+              <RefreshCw size={16} />
             </Button>
           </div>
 

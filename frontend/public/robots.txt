@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Disallow admin or sensitive areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+# Allow search engines to crawl important pages
+Allow: /
+Allow: /profile
+Allow: /auth
+
+# Sitemap location
+Sitemap: https://invoicegen.dotdevz.com/sitemap.xml

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import Header from "./layout/Header";
+import SEO from "./SEO";
 import Button from "./ui/Button";
 import {
   User,
@@ -28,15 +30,18 @@ const Profile = () => {
 
       try {
         setInvoiceLoading(true);
-        const BACKEND_URL =
-          import.meta.env.VITE_BACKEND_URL  ;
-        const res = await axios.get(`${BACKEND_URL}/api/invoices`, {
+        const VITE_BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+        const res = await axios.get(`${VITE_BACKEND_URL}/api/invoices`, {
           withCredentials: true,
         });
 
-        setInvoices(res.data);
+        // Ensure we always set an array
+        setInvoices(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("❌ Error fetching invoices:", err);
+        toast.error("Failed to load invoices");
+        // Set empty array on error
+        setInvoices([]);
       } finally {
         setInvoiceLoading(false);
       }
@@ -59,14 +64,13 @@ const Profile = () => {
     password: false,
   });
 
-  const [showPasswords, setShowPasswords] = useState({
-    current: false,
-    new: false,
-    confirm: false,
-  });
+  // const [showPasswords, setShowPasswords] = useState({
+  //   current: false,
+  //   new: false,
+  //   confirm: false,
+  // });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState({ type: "", text: "" });
 
   useEffect(() => {
     if (currentUser) {
@@ -111,16 +115,16 @@ const Profile = () => {
     }
   };
 
-  const togglePasswordVisibility = (field) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [field]: !prev[field],
-    }));
-  };
+  // const togglePasswordVisibility = (field) => {
+  //   setShowPasswords((prev) => ({
+  //     ...prev,
+  //     [field]: !prev[field],
+  //   }));
+  // };
 
   const saveField = async (field) => {
     setIsLoading(true);
-    setMessage({ type: "", text: "" });
+    const loadingToast = toast.loading("Updating profile...");
 
     try {
       let updateData = {};
@@ -144,12 +148,12 @@ const Profile = () => {
 
       await updateProfile(updateData);
 
-      setMessage({
-        type: "success",
-        text: `${field
+      toast.dismiss(loadingToast);
+      toast.success(
+        `${field
           .replace(/([A-Z])/g, " $1")
-          .replace(/^./, (str) => str.toUpperCase())} updated successfully!`,
-      });
+          .replace(/^./, (str) => str.toUpperCase())} updated successfully!`
+      );
       setIsEditing((prev) => ({ ...prev, [field]: false }));
 
       if (field === "password") {
@@ -161,10 +165,8 @@ const Profile = () => {
         }));
       }
     } catch (error) {
-      setMessage({
-        type: "error",
-        text: error.message || "Failed to update profile",
-      });
+      toast.dismiss(loadingToast);
+      toast.error(error.message || "Failed to update profile");
     } finally {
       setIsLoading(false);
     }
@@ -179,10 +181,7 @@ const Profile = () => {
       navigate(`/?edit=${invoice._id}`);
     } catch (error) {
       console.error("❌ Error preparing invoice for editing:", error);
-      setMessage({
-        type: "error",
-        text: "Failed to load invoice for editing",
-      });
+      toast.error("Failed to load invoice for editing");
     }
   };
 
@@ -201,8 +200,13 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="Profile Settings | InvoiceGen"
+        description="Manage your InvoiceGen account, update business details, change password, and view saved invoices."
+        keywords="profile, account, business, invoice settings, manage account, invoicegen"
+        canonicalUrl="/profile"
+      />
       <Header />
-
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <div className="flex items-center space-x-3">
@@ -217,18 +221,6 @@ const Profile = () => {
             </div>
           </div>
         </div>
-
-        {message.text && (
-          <div
-            className={`mb-6 p-4 rounded-lg ${
-              message.type === "success"
-                ? "bg-green-50 text-green-800 border border-green-200"
-                : "bg-red-50 text-red-800 border border-red-200"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
 
         <div className="bg-white shadow rounded-lg">
           <div className="p-6">
@@ -283,7 +275,7 @@ const Profile = () => {
             </div>
 
             {/* Email Section */}
-            <div className="border-b border-gray-200 pb-6 mb-6">
+            <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-2">
                   <Mail className="w-5 h-5 text-gray-400" />
@@ -326,7 +318,7 @@ const Profile = () => {
               )}
             </div>
 
-            {/* Password Section */}
+            {/* Password Section
             <div>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium text-gray-900">Password</h3>
@@ -345,7 +337,7 @@ const Profile = () => {
               {isEditing.password && (
                 <div className="space-y-4">
                   {["currentPassword", "newPassword", "confirmPassword"].map(
-                    (field, i) => (
+                    (field) => (
                       <div key={field}>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           {field
@@ -398,7 +390,7 @@ const Profile = () => {
                   </Button>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
 
@@ -410,7 +402,7 @@ const Profile = () => {
 
           {invoiceLoading ? (
             <p className="text-gray-500">Loading invoices...</p>
-          ) : invoices.length === 0 ? (
+          ) : !Array.isArray(invoices) || invoices.length === 0 ? (
             <p className="text-gray-500">No invoices found.</p>
           ) : (
             <div className="overflow-x-auto">
@@ -438,37 +430,38 @@ const Profile = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {invoices.map((invoice) => (
-                    <tr key={invoice._id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 font-medium">
-                        {invoice.invoiceNumber || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {invoice.date
-                          ? new Date(invoice.date).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {invoice.clientDetails || "N/A"}
-                      </td>
-                      <td className="px-4 py-3">
-                        {invoice.customerNumber || "N/A"}
-                      </td>
-                      <td className="px-4 py-3 font-medium">
-                        ₹{invoice.totalAmount?.toFixed(2) || "0.00"}
-                      </td>
-                      <td className="px-4 py-3">
-                        <Button
-                          variant="secondary"
-                          onClick={() => handleEditInvoice(invoice)}
-                          className="flex items-center space-x-1"
-                        >
-                          <FileEdit size={14} />
-                          <span>Edit</span>
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                  {Array.isArray(invoices) &&
+                    invoices.map((invoice) => (
+                      <tr key={invoice._id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 font-medium">
+                          {invoice.invoiceNumber || "N/A"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {invoice.date
+                            ? new Date(invoice.date).toLocaleDateString()
+                            : "N/A"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {invoice.clientDetails || "N/A"}
+                        </td>
+                        <td className="px-4 py-3">
+                          {invoice.customerNumber || "N/A"}
+                        </td>
+                        <td className="px-4 py-3 font-medium">
+                          ₹{invoice.totalAmount?.toFixed(2) || "0.00"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            variant="secondary"
+                            onClick={() => handleEditInvoice(invoice)}
+                            className="flex items-center space-x-1"
+                          >
+                            <FileEdit size={14} />
+                            <span>Edit</span>
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>

@@ -48,24 +48,25 @@ const ItemList = ({
     const lastItem = invoice.items[invoice.items.length - 1];
     const description = lastItem?.description?.trim();
 
-        const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
     if (description && isAuthenticated) {
       try {
         const { data: existing } = await axios.get(
-              `${backendUrl}/api/suggestions?q=${description}&userId=${userId}`
+          `${backendUrl}/api/suggestions?q=${description}&userId=${userId}`
         );
 
-        const isAlreadySaved = existing.some((s) => s.name === description);
+        // Ensure existing is an array before using .some()
+        const existingArray = Array.isArray(existing) ? existing : [];
+        const isAlreadySaved = existingArray.some(
+          (s) => s.name === description
+        );
 
         if (!isAlreadySaved) {
-          await axios.post(
-                `${backendUrl}/api/suggestions`,
-            {
-              name: description,
-              userId,
-            }
-          );
+          await axios.post(`${backendUrl}/api/suggestions`, {
+            name: description,
+            userId,
+          });
         }
       } catch (err) {
         console.error("❌ Error saving suggestion:", err);

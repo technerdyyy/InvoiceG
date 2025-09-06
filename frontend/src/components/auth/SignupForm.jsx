@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
@@ -14,9 +15,13 @@ const SignupForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const loadingToast = toast.loading("Creating account...");
     const result = await signup(formData);
+    toast.dismiss(loadingToast);
     if (!result.success) {
-      alert(result.error);
+      toast.error(result.error || "Failed to create account");
+    } else {
+      toast.success("Account created successfully!");
     }
   };
 

@@ -1,15 +1,25 @@
 import React, { useState, useRef, useEffect } from "react";
+import toast from "react-hot-toast";
 import useAuth from "../../hooks/useAuth";
-import { LogOut, User, ChevronDown } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
-import logo from "../../assets/invoice-logo.png";
+import { LogOut, User, ChevronDown, Home } from "lucide-react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 
 const Header = () => {
   const { currentUser, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Check if user is on profile page
+  const isOnProfilePage = location.pathname === "/profile";
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logged out successfully!");
+    setDropdownOpen(false);
+  };
 
   // const currencyOptions = [
   //   { label: "₹ INR", value: "INR" },
@@ -43,16 +53,15 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-4">
-            <Link to = '/'>
+            <Link to="/">
               <img
-                  src={logo}
-                alt="InvoiceG logo"
-                className="w-10 h-10 object-contain"
-              
-              />{" "}
+                src="/invoiceg.svg"
+                alt="JSON Editor"
+                className="h-32 w-36"
+              />
             </Link>
-            
-            <h1 className="text-xl font-bold text-gray-900">InvoiceKart</h1>
+
+            {/* <h1 className="text-lg font-semibold">IInvoice Gen</h1> */}
             {isAuthenticated && (
               <span className="text-sm text-gray-500">
                 ({currentUser?.businessName})
@@ -88,15 +97,32 @@ const Header = () => {
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <div className="py-1">
-                      <button
-                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => navigate("/profile")}
-                      >
-                        My Profile
-                      </button>
+                      {isOnProfilePage ? (
+                        // Show Home button when on profile page
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                            navigate("/");
+                            setDropdownOpen(false);
+                          }}
+                        >
+                          <Home className="w-4 h-4" /> Home
+                        </button>
+                      ) : (
+                        // Show Profile button when on other pages
+                        <button
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => {
+                            navigate("/profile");
+                            setDropdownOpen(false);
+                          }}
+                        >
+                          My Profile
+                        </button>
+                      )}
                       <button
                         className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center gap-2 cursor-pointer"
-                        onClick={logout}
+                        onClick={handleLogout}
                       >
                         <LogOut className="w-4 h-4" /> Logout
                       </button>

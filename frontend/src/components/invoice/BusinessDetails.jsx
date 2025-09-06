@@ -1,6 +1,7 @@
 import React from "react";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import useAuth from "../../hooks/useAuth";
 
 const BusinessDetails = ({
   businessInfo = {},
@@ -8,6 +9,17 @@ const BusinessDetails = ({
   handleChange,
   onToggleEdit,
 }) => {
+  const { currentUser, isAuthenticated } = useAuth();
+
+  // Merge user data with businessInfo, prioritizing businessInfo if it exists
+  const populatedBusinessInfo = {
+    ...businessInfo,
+    businessName:
+      businessInfo.businessName ||
+      (isAuthenticated ? currentUser?.businessName : "") ||
+      "",
+  };
+
   return (
     <div className="bg-white p-6 rounded-lg shadow-lg mb-6">
       <div className="flex justify-between items-center mb-4">
@@ -22,7 +34,7 @@ const BusinessDetails = ({
           <Input
             label="Business Name"
             name="businessName"
-            value={businessInfo.businessName || ""}
+            value={populatedBusinessInfo.businessName || ""}
             onChange={handleChange}
             placeholder="Your business name"
           />
@@ -65,7 +77,7 @@ const BusinessDetails = ({
       ) : (
         <div className="text-sm text-blue-600 space-y-1">
           <h2 className="font-bold text-lg">
-            {businessInfo.businessName || "[Business Name]"}
+            {populatedBusinessInfo.businessName || "[Business Name]"}
           </h2>
           <p>{businessInfo.registrationNumber || "[Registration Number]"}</p>
           <p>{businessInfo.address || "[Business Address]"}</p>

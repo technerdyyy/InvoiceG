@@ -25,15 +25,20 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
       try {
         const { data } = await axios.get(
           `${
-            import.meta.env.VITE_BACKEND_URL  
+            import.meta.env.VITE_VITE_BACKEND_URL
           }/api/suggestions?q=${value}&userId=${userIdToUse}`
         );
 
-        const suggestionNames = data.map((s) => s.name);
+        // Ensure data is an array before mapping
+        const suggestionNames = Array.isArray(data)
+          ? data.map((s) => s.name)
+          : [];
         setSuggestions(suggestionNames);
         setShowSuggestions(true);
       } catch (err) {
         console.error("Error fetching suggestions:", err);
+        setSuggestions([]);
+        setShowSuggestions(false);
       }
     } else {
       setSuggestions([]);
@@ -51,9 +56,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
 
     try {
       await axios.post(
-        `${
-          import.meta.env.VITE_BACKEND_URL  
-        }/api/suggestions`,
+        `${import.meta.env.VITE_VITE_BACKEND_URL}/api/suggestions`,
         {
           name: suggestion,
           userId: item.userId || null,
@@ -123,7 +126,7 @@ const InvoiceItem = ({ item, onUpdate, onRemove, canRemove }) => {
           type="integer"
           value={item.unitPrice}
           onChange={(e) =>
-            onUpdate(item.id, "unitPrice", parseFloat(e.target.value) || 0)
+            onUpdate(item.id, "unitPrice", parseFloat(e.target.value))
           }
           min="0"
           step="0.01"
