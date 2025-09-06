@@ -1,5 +1,5 @@
 import React from "react";
-import { Helmet } from " @vuer-ai/react-helmet-async";
+import { Helmet } from "@vuer-ai/react-helmet-async";
 
 const SEO = ({
   title = "InvoiceGen - Professional Invoice Generator",
