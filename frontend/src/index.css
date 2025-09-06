@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+/* Prevent pull-to-refresh on mobile browsers */
+body, html {
+  overscroll-behavior-y: contain;
+}
